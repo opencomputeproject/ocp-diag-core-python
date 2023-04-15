@@ -26,3 +26,5 @@ with run:
   - output channel (currently uses `configOutput` method call)
 
 - considerations for multithreading/multiprocess
+
+- code of conduct in readme
