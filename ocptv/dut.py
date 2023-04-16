@@ -205,7 +205,7 @@ class Subcomponent:
         type: ty.Optional[SubcomponentType] = None,
         location: ty.Optional[str] = None,
         version: ty.Optional[str] = None,
-        revision: ty.Optional[str] = None
+        revision: ty.Optional[str] = None,
     ):
         self._spec_object = SubcomponentSpec(
             type=type,

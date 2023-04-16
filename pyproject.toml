@@ -1,3 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ocptv"
+version = "0.1.2"
+description = "OCP Test & Validation project api"
+readme = "README.md"
+authors = [{ name = "OCP Test & Validation", email = "ocp-test-validation@OCP-All.groups.io" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: System :: Hardware",
+]
+keywords = ["ocp", "ocptv", "specification"]
+dependencies = []
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
+
+[project.urls]
+"Homepage" = "https://github.com/opencomputeproject/ocp-diag-python"
+"Bug reports" = "https://github.com/opencomputeproject/ocp-diag-python/issues"
+"Source" = "https://github.com/opencomputeproject/ocp-diag-python"
+
+[tool.bumpver]
+current_version = "0.1.2"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = false
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
+"ocptv/__init__.py" = [
+    "{version}"
+]
+
 [tool.pytest.ini_options]
 pythonpath = [
     "."
