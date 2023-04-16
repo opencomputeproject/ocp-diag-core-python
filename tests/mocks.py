@@ -1,4 +1,5 @@
 import json
+import typing as ty
 
 from ocptv.output import Writer
 from ocptv.output.emit import JSON
@@ -11,7 +12,7 @@ class MockWriter(Writer):
     def write(self, buffer: str):
         self.lines.append(buffer)
 
-    def decoded_obj(self, index: int) -> dict[str, JSON]:
+    def decoded_obj(self, index: int) -> ty.Dict[str, JSON]:
         """Decode an expected object from given output index"""
         return json.loads(self.lines[index])
 

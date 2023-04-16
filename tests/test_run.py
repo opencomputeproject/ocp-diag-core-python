@@ -140,11 +140,11 @@ def test_run_with_diagnosis(writer: MockWriter):
     assert "schemaVersion" in writer.decoded_obj(0)
 
     assert "testRunArtifact" in writer.decoded_obj(1)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(1)["testRunArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(1)["testRunArtifact"])
     assert "testRunStart" in artifact
 
     assert "testRunArtifact" in writer.decoded_obj(2)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(2)["testRunArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(2)["testRunArtifact"])
     assert "log" in artifact
 
     assert_json(
@@ -189,7 +189,7 @@ def test_run_with_diagnosis(writer: MockWriter):
     )
 
     assert "testRunArtifact" in writer.decoded_obj(6)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(6)["testRunArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(6)["testRunArtifact"])
     assert "testRunEnd" in artifact
 
 
@@ -518,12 +518,12 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
 
     # fan_speed start
     assert "testStepArtifact" in writer.decoded_obj(3)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(3)["testStepArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(3)["testStepArtifact"])
     assert "measurementSeriesStart" in artifact
 
     # temp start
     assert "testStepArtifact" in writer.decoded_obj(5)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(5)["testStepArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(5)["testStepArtifact"])
     assert "measurementSeriesStart" in artifact
 
     assert_json(
@@ -560,12 +560,12 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
 
     # temp end
     assert "testStepArtifact" in writer.decoded_obj(8)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(8)["testStepArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(8)["testStepArtifact"])
     assert "measurementSeriesEnd" in artifact
 
     # fan_speed end
     assert "testStepArtifact" in writer.decoded_obj(9)
-    artifact = ty.cast(dict[str, JSON], writer.decoded_obj(9)["testStepArtifact"])
+    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(9)["testStepArtifact"])
     assert "measurementSeriesEnd" in artifact
 
 
