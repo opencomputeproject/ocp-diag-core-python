@@ -1,16 +1,15 @@
 import typing as ty
 
-from .objects import (
-    PlatformInfo as PlatformInfoSpec,
-    SoftwareInfo as SoftwareInfoSpec,
-    SoftwareType,
-    HardwareInfo as HardwareInfoSpec,
-    DutInfo,
-    Subcomponent as SubcomponentSpec,
-    SubcomponentType,
-    Metadata,
-)
-from .api import export_api
+from ocptv.api import export_api
+
+from .objects import DutInfo
+from .objects import HardwareInfo as HardwareInfoSpec
+from .objects import Metadata
+from .objects import PlatformInfo as PlatformInfoSpec
+from .objects import SoftwareInfo as SoftwareInfoSpec
+from .objects import SoftwareType
+from .objects import Subcomponent as SubcomponentSpec
+from .objects import SubcomponentType
 
 
 class PlatformInfo:

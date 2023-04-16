@@ -2,23 +2,24 @@
 This module describes the high level test run and related objects.
 """
 import sys
-from contextlib import contextmanager
 import typing as ty
+from contextlib import contextmanager
 
+from ocptv.api import export_api
+
+from .dut import Dut, SoftwareInfo
+from .emit import ArtifactEmitter
 from .objects import (
-    RunArtifact,
-    RunStart,
-    RunEnd,
-    Log,
     Error,
-    TestStatus,
-    TestResult,
+    Log,
     LogSeverity,
+    RunArtifact,
+    RunEnd,
+    RunStart,
+    TestResult,
+    TestStatus,
 )
 from .step import TestStep
-from .dut import Dut, SoftwareInfo
-from .output import ArtifactEmitter
-from .api import export_api
 
 
 @export_api

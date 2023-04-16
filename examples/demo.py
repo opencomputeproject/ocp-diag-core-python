@@ -3,22 +3,24 @@ import sys
 import threading
 import time
 import typing as ty
-
 from pathlib import Path
 
+# add the local lib to sys.path for discovery
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-import ocptv
-from ocptv import (
+
+import ocptv.output as tv
+from ocptv.output import (
     DiagnosisType,
     LogSeverity,
+    SoftwareType,
+    StdoutWriter,
+    SubcomponentType,
     TestResult,
     TestStatus,
     ValidatorType,
-    SubcomponentType,
-    SoftwareType,
+    Writer,
 )
-from ocptv.output import Writer, StdoutWriter
 
 
 def banner(f):
@@ -38,8 +40,8 @@ def demo_no_contexts():
     Show that a run/step can be manually started and ended
     (but it's safer with context)
     """
-    run = ocptv.TestRun(name="no with", version="1.0", parameters={"param": "test"})
-    run.start(dut=ocptv.Dut(id="dut0"))
+    run = tv.TestRun(name="no with", version="1.0", parameters={"param": "test"})
+    run.start(dut=tv.Dut(id="dut0"))
 
     step = run.add_step("step0")
     step.start()
@@ -55,11 +57,9 @@ def demo_context_run_skip():
     Show a context-scoped run that automatically exits the whole func
     because of the marker exception that triggers SKIP outcome.
     """
-    run = ocptv.TestRun(name="run_skip", version="1.0", parameters={"param": "test"})
-    with run.scope(dut=ocptv.Dut(id="dut0")):
-        raise ocptv.TestRunError(
-            status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE
-        )
+    run = tv.TestRun(name="run_skip", version="1.0", parameters={"param": "test"})
+    with run.scope(dut=tv.Dut(id="dut0")):
+        raise tv.TestRunError(status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE)
 
 
 @banner
@@ -68,8 +68,8 @@ def demo_context_step_fail():
     Show a scoped run with scoped steps, everything starts at "with" time and
     ends automatically when the block ends (regardless of unhandled exceptions).
     """
-    run = ocptv.TestRun(name="step_fail", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="step_fail", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_log(LogSeverity.INFO, "info log")
@@ -77,7 +77,7 @@ def demo_context_step_fail():
         step = run.add_step("step1")
         with step.scope():
             # TODO: maybe this should fail the whole run?
-            raise ocptv.TestStepError(status=TestStatus.ERROR)
+            raise tv.TestStepError(status=TestStatus.ERROR)
 
 
 @banner
@@ -96,9 +96,9 @@ def demo_custom_writer():
             with self.__lock:
                 print(buffer, file=self.__file)
 
-    ocptv.configOutput(writer=FileSyncWriter(sys.stdout))
+    tv.config_output(writer=FileSyncWriter(sys.stdout))
 
-    def parallel_step(step: ocptv.TestStep):
+    def parallel_step(step: tv.TestStep):
         with step.scope():
             for _ in range(5):
                 step.add_log(
@@ -108,8 +108,8 @@ def demo_custom_writer():
                 time.sleep(0.001)
 
     try:
-        run = ocptv.TestRun(name="custom writer", version="1.0")
-        with run.scope(dut=ocptv.Dut(id="dut0")):
+        run = tv.TestRun(name="custom writer", version="1.0")
+        with run.scope(dut=tv.Dut(id="dut0")):
             threads: list[threading.Thread] = []
             for id in range(4):
                 step = run.add_step(f"parallel_step_{id}")
@@ -122,7 +122,7 @@ def demo_custom_writer():
                 t.join()
     finally:
         # return to default, useful for rest of demos
-        ocptv.configOutput(StdoutWriter())
+        tv.config_output(StdoutWriter())
 
 
 @banner
@@ -135,8 +135,8 @@ def demo_diagnosis():
         # str consts for error classifier
         PASS = "pass-default"
 
-    run = ocptv.TestRun(name="run_with_diagnosis", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="run_with_diagnosis", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_diagnosis(DiagnosisType.PASS, verdict=Verdict.PASS)
@@ -153,17 +153,15 @@ def demo_python_logging_io():
 
     class LoggingWriter(Writer):
         def __init__(self):
-            logging.basicConfig(
-                stream=sys.stdout, level=logging.INFO, format="[pylog] %(message)s"
-            )
+            logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="[pylog] %(message)s")
 
         def write(self, buffer: str):
             logging.info(buffer)
 
-    ocptv.configOutput(writer=LoggingWriter())
+    tv.config_output(writer=LoggingWriter())
 
     class Handler(logging.StreamHandler):
-        def __init__(self, run: ocptv.TestRun):
+        def __init__(self, run: tv.TestRun):
             super().__init__(None)
             self._run = run
 
@@ -182,7 +180,7 @@ def demo_python_logging_io():
                 return LogSeverity.FATAL
             return LogSeverity.INFO
 
-    run = ocptv.TestRun(name="run_with_diagnosis", version="1.0")
+    run = tv.TestRun(name="run_with_diagnosis", version="1.0")
 
     log = logging.getLogger("ocptv")
     log.addHandler(Handler(run))
@@ -190,12 +188,12 @@ def demo_python_logging_io():
     log.propagate = False
 
     try:
-        with run.scope(dut=ocptv.Dut(id="dut0")):
+        with run.scope(dut=tv.Dut(id="dut0")):
             log.info("ocp log thru python logger")
             log.debug("debug log sample")
             log.warning("warn level here")
     finally:
-        ocptv.configOutput(StdoutWriter())
+        tv.config_output(StdoutWriter())
         log.removeHandler(log.handlers[-1])
 
 
@@ -205,7 +203,7 @@ def demo_error_while_gathering_duts():
         # str consts for error classifier
         NO_DUT = "no-dut"
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     run.add_error(
         symptom=Symptom.NO_DUT,
         message="could not find any valid DUTs",
@@ -214,8 +212,8 @@ def demo_error_while_gathering_duts():
 
 @banner
 def demo_create_file_during_step():
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_file(
@@ -223,7 +221,7 @@ def demo_create_file_during_step():
                 uri="file:///root/device_info.csv",
             )
 
-            meta = ocptv.Metadata()
+            meta = tv.Metadata()
             meta["k"] = "v"
             step.add_file(
                 name="file_with_meta.txt",
@@ -234,8 +232,8 @@ def demo_create_file_during_step():
 
 @banner
 def demo_create_measurement_simple():
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_measurement(name="fan_speed", value="1200", unit="rpm")
@@ -250,8 +248,8 @@ def demo_create_measurement_series():
     Step1 has a single series but using a scope, so series ends automatically.
     Step2 shows multiple measurement interspersed series, they can be concurrent.
     """
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step0 = run.add_step("step0")
         with step0.scope():
             fan_speed = step0.start_measurement_series(name="fan_speed", unit="rpm")
@@ -281,15 +279,15 @@ def demo_create_measurement_series():
 
 @banner
 def demo_create_measurements_with_validators():
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_measurement(
                 name="temp",
                 value=40,
                 validators=[
-                    ocptv.Validator(
+                    tv.Validator(
                         type=ValidatorType.GREATER_THAN,
                         value=30,
                         name="gt_30",
@@ -301,7 +299,7 @@ def demo_create_measurements_with_validators():
                 name="fan_speed",
                 unit="rpm",
                 validators=[
-                    ocptv.Validator(
+                    tv.Validator(
                         type=ValidatorType.LESS_THAN_OR_EQUAL,
                         value=3000,
                     )
@@ -313,14 +311,14 @@ def demo_create_measurements_with_validators():
 
 @banner
 def demo_run_error_with_dut():
-    dut = ocptv.Dut(id="dut0", name="dut0.server.net")
+    dut = tv.Dut(id="dut0", name="dut0.server.net")
     bmc_software = dut.add_software_info(
         name="bmc",
         type=SoftwareType.FIRMWARE,
         version="2.5",
     )
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
         run.add_error(
             symptom="power-fail",
@@ -330,7 +328,7 @@ def demo_run_error_with_dut():
 
 @banner
 def demo_create_measurements_with_subcomponent():
-    dut = ocptv.Dut(id="dut0", name="dut0.server.net")
+    dut = tv.Dut(id="dut0", name="dut0.server.net")
     dut.add_platform_info("memory-optimized")
     dut.add_software_info(
         name="bmc0",
@@ -353,7 +351,7 @@ def demo_create_measurements_with_subcomponent():
         manager="bmc0",
     )
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
         step = run.add_step("step0")
         with step.scope():
@@ -362,14 +360,14 @@ def demo_create_measurements_with_subcomponent():
                 value=100.5,
                 unit="F",
                 hardware_info=ram0_hardware,
-                subcomponent=ocptv.Subcomponent(name="chip0"),
+                subcomponent=tv.Subcomponent(name="chip0"),
             )
 
             chip1_temp = step.start_measurement_series(
                 name="temp1",
                 unit="C",
                 hardware_info=ram0_hardware,
-                subcomponent=ocptv.Subcomponent(
+                subcomponent=tv.Subcomponent(
                     name="chip1",
                     location="U11",
                     version="1",
@@ -383,8 +381,8 @@ def demo_create_measurements_with_subcomponent():
 
 @banner
 def demo_step_extension():
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_extension(

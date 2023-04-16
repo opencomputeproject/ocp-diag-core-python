@@ -1,6 +1,7 @@
 import json
 
-from ocptv.output import Writer, JSON
+from ocptv.output import Writer
+from ocptv.output.emit import JSON
 
 
 class MockWriter(Writer):

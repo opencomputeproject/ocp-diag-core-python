@@ -1,18 +1,12 @@
-import pytest
 import time
 import typing as ty
 
-import ocptv
-from ocptv import (
-    LogSeverity,
-    TestStatus,
-    TestResult,
-    DiagnosisType,
-    ValidatorType,
-    SoftwareType,
-)
+import pytest
+
+import ocptv.output as tv
 from ocptv.formatter import format_timestamp
-from ocptv.output import JSON
+from ocptv.output import DiagnosisType, LogSeverity, SoftwareType, TestResult, TestStatus, ValidatorType
+from ocptv.output.emit import JSON
 
 # pytest incorrectly identifies these as pytest related
 TestStatus.__test__ = False  # type: ignore
@@ -24,18 +18,18 @@ from .mocks import MockWriter, assert_json
 @pytest.fixture
 def writer():
     w = MockWriter()
-    ocptv.configOutput(w)
+    tv.config_output(w)
     return w
 
 
 def test_simple_run(writer: MockWriter):
-    run = ocptv.TestRun(
+    run = tv.TestRun(
         name="test",
         version="1.0",
         command_line="cl",
         parameters={"param": "test"},
     )
-    run.start(dut=ocptv.Dut(id="test_dut"))
+    run.start(dut=tv.Dut(id="test_dut"))
     run.end(status=TestStatus.COMPLETE, result=TestResult.PASS)
 
     assert len(writer.lines) == 3
@@ -77,8 +71,8 @@ def test_simple_run(writer: MockWriter):
 
 
 def test_run_scope(writer: MockWriter):
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         pass
 
     assert len(writer.lines) == 3
@@ -97,11 +91,9 @@ def test_run_scope(writer: MockWriter):
 
 
 def test_run_skip_by_exception(writer: MockWriter):
-    run = ocptv.TestRun(name="run_skip", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
-        raise ocptv.TestRunError(
-            status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE
-        )
+    run = tv.TestRun(name="run_skip", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        raise tv.TestRunError(status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE)
 
     assert len(writer.lines) == 3
     assert_json(
@@ -122,7 +114,7 @@ def test_run_with_diagnosis(writer: MockWriter):
     class Verdict:
         PASS = "pass-default"
 
-    dut = ocptv.Dut(id="test_dut")
+    dut = tv.Dut(id="test_dut")
     ram0_hardware = dut.add_hardware_info(
         name="ram0",
         version="1",
@@ -137,14 +129,12 @@ def test_run_with_diagnosis(writer: MockWriter):
         manager="bmc0",
     )
 
-    run = ocptv.TestRun(name="run_with_diagnosis", version="1.0")
+    run = tv.TestRun(name="run_with_diagnosis", version="1.0")
     with run.scope(dut=dut):
         run.add_log(LogSeverity.INFO, "run info")
         step = run.add_step("step0")
         with step.scope():
-            step.add_diagnosis(
-                DiagnosisType.PASS, verdict=Verdict.PASS, hardware_info=ram0_hardware
-            )
+            step.add_diagnosis(DiagnosisType.PASS, verdict=Verdict.PASS, hardware_info=ram0_hardware)
 
     assert len(writer.lines) == 7
     assert "schemaVersion" in writer.decoded_obj(0)
@@ -207,7 +197,7 @@ def test_run_can_error_before_start(writer: MockWriter):
     class Symptom:
         TEST_SYMPTOM = "test-symptom"
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     run.add_error(symptom=Symptom.TEST_SYMPTOM)
 
     assert len(writer.lines), 2
@@ -229,14 +219,14 @@ def test_run_can_error(writer: MockWriter):
     class Symptom:
         TEST_SYMPTOM = "test-symptom"
 
-    dut = ocptv.Dut(id="test_dut")
+    dut = tv.Dut(id="test_dut")
     bmc_software = dut.add_software_info(
         name="bmc",
         type=SoftwareType.FIRMWARE,
         version="1.2",
     )
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
         run.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
 
@@ -259,14 +249,14 @@ def test_step_can_error(writer: MockWriter):
     class Symptom:
         TEST_SYMPTOM = "test-symptom"
 
-    dut = ocptv.Dut(id="test_dut")
+    dut = tv.Dut(id="test_dut")
     bmc_software = dut.add_software_info(
         name="bmc",
         type=SoftwareType.FIRMWARE,
         version="1.2",
     )
 
-    run = ocptv.TestRun(name="test", version="1.0")
+    run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
         step = run.add_step("step0")
         with step.scope():
@@ -289,8 +279,8 @@ def test_step_can_error(writer: MockWriter):
 
 
 def test_step_produces_files(writer: MockWriter):
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
             step.add_file(
@@ -300,7 +290,7 @@ def test_step_produces_files(writer: MockWriter):
 
         step = run.add_step("step1")
         with step.scope():
-            meta = ocptv.Metadata()
+            meta = tv.Metadata()
             meta["k"] = "v"
 
             step.add_file(
@@ -344,8 +334,8 @@ def test_step_produces_files(writer: MockWriter):
 
 
 def test_step_produces_extensions(writer: MockWriter):
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="dut0")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="dut0")):
         step = run.add_step("step0")
         with step.scope():
             step.add_extension(
@@ -396,8 +386,8 @@ def test_step_produces_extensions(writer: MockWriter):
 
 
 def test_step_produces_simple_measurements(writer: MockWriter):
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
             step.add_measurement(name="fan_speed", value="1200", unit="rpm")
@@ -439,8 +429,8 @@ def test_step_produces_simple_measurements(writer: MockWriter):
 def test_step_produces_measurement_series(writer: MockWriter):
     ts = time.time()
 
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
             fan_speed = step.start_measurement_series(name="fan_speed", unit="rpm")
@@ -512,8 +502,8 @@ def test_step_produces_measurement_series(writer: MockWriter):
 def test_step_produces_concurrent_measurement_series(writer: MockWriter):
     ts = time.time()
 
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
             fan_speed = step.start_measurement_series(name="fan_speed", unit="rpm")
@@ -580,15 +570,15 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
 
 
 def test_step_produces_measurements_with_validators(writer: MockWriter):
-    run = ocptv.TestRun(name="test", version="1.0")
-    with run.scope(dut=ocptv.Dut(id="test_dut")):
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
         step0 = run.add_step("step0")
         with step0.scope():
             step0.add_measurement(
                 name="temp",
                 value=40,
                 validators=[
-                    ocptv.Validator(
+                    tv.Validator(
                         type=ValidatorType.GREATER_THAN,
                         value=30,
                         name="gt_30",
@@ -602,11 +592,11 @@ def test_step_produces_measurements_with_validators(writer: MockWriter):
                 name="fan_speed",
                 unit="rpm",
                 validators=[
-                    ocptv.Validator(
+                    tv.Validator(
                         type=ValidatorType.GREATER_THAN,
                         value=500,
                     ),
-                    ocptv.Validator(
+                    tv.Validator(
                         type=ValidatorType.LESS_THAN_OR_EQUAL,
                         value=3000,
                     ),
@@ -664,7 +654,7 @@ def test_step_produces_measurements_with_validators(writer: MockWriter):
 
 
 def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
-    dut = ocptv.Dut(id="test_dut", name="test.server.net")
+    dut = tv.Dut(id="test_dut", name="test.server.net")
     dut.add_platform_info("memory-optimized")
     dut.add_software_info(
         name="bmc0",
@@ -687,7 +677,7 @@ def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
         manager="bmc0",
     )
 
-    run = ocptv.TestRun(name="test", version="1.0", command_line="cl")
+    run = tv.TestRun(name="test", version="1.0", command_line="cl")
     with run.scope(dut=dut):
         step = run.add_step("step0")
         with step.scope():
@@ -696,7 +686,7 @@ def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
                 value=40.2,
                 unit="C",
                 hardware_info=ram0_hardware,
-                subcomponent=ocptv.Subcomponent(name="chip0", location="U1"),
+                subcomponent=tv.Subcomponent(name="chip0", location="U1"),
             )
 
     assert len(writer.lines) == 6

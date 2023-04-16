@@ -10,12 +10,12 @@ value in `SPEC_OBJECT` as the serialized field name. Otherwise, the metadata.spe
 says what the serializer should use for field name.
 In general, metadata.spec_field should only be present for primitive types.
 """
-from enum import Enum
 import dataclasses as dc
 import typing as ty
+from enum import Enum
 
-from .formatter import format_enum, format_timestamp
-from .api import export_api
+from ocptv.api import export_api
+from ocptv.formatter import format_enum, format_timestamp
 
 if ty.TYPE_CHECKING:
     # mypy extension for py37
@@ -666,9 +666,7 @@ class MeasurementSeriesElement:
     metadata: ty.Optional[Metadata]
 
 
-MeasurementSeriesType = ty.Union[
-    MeasurementSeriesStart, MeasurementSeriesEnd, MeasurementSeriesElement
-]
+MeasurementSeriesType = ty.Union[MeasurementSeriesStart, MeasurementSeriesEnd, MeasurementSeriesElement]
 
 # note: these must specify some bounds for the extension content in python, despite
 # the spec saying that it can be anything. This is necessary for the json serializer
