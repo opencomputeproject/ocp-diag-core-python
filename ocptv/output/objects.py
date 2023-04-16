@@ -17,7 +17,7 @@ from enum import Enum
 from ocptv.api import export_api
 from ocptv.formatter import format_enum, format_timestamp
 
-if ty.TYPE_CHECKING:
+if ty.TYPE_CHECKING:  # pragma: no cover
     # mypy extension for py37
     from typing_extensions import Protocol
 else:
@@ -741,6 +741,9 @@ class TestStatus(Enum):
     schema ref: https://github.com/opencomputeproject/ocp-diag-core/testStatus
     """
 
+    # pytest incorrectly identifies this as a test
+    __test__ = False  # type: ignore
+
     COMPLETE = "COMPLETE"
     ERROR = "ERROR"
     SKIP = "SKIP"
@@ -754,6 +757,9 @@ class TestResult(Enum):
     schema url: https://github.com/opencomputeproject/ocp-diag-core/blob/main/json_spec/output/test_run_end.json
     schema ref: https://github.com/opencomputeproject/ocp-diag-core/testRunEnd/$defs/testResult
     """
+
+    # pytest incorrectly identifies this as a test
+    __test__ = False  # type: ignore
 
     PASS = "PASS"
     FAIL = "FAIL"

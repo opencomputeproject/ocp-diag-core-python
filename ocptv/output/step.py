@@ -211,5 +211,5 @@ class TestStep:
         return self._name
 
     @property
-    def stepId(self) -> int:
+    def id(self) -> int:
         return self._id

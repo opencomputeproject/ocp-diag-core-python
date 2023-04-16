@@ -1,4 +1,5 @@
-from datetime import datetime
+import typing as ty
+from datetime import datetime, tzinfo
 from enum import Enum
 
 
@@ -7,13 +8,13 @@ def format_enum(variant: Enum) -> str:
     return "{}".format(variant.value)
 
 
-def format_timestamp(ts: float) -> str:
+def format_timestamp(ts: float, tz: ty.Optional[tzinfo] = None) -> str:
     """
     Format an unix timestamp in local tz.
     If the timezone coincides with UTC, returns zulu time format.
     """
     dt = datetime.fromtimestamp(ts)
-    isostr = dt.astimezone().isoformat()
+    isostr = dt.astimezone(tz).isoformat()
 
     utcsuffix = "+00:00"
     if isostr.endswith(utcsuffix):

@@ -1,16 +1,7 @@
-import pytest
-
 import ocptv.output as tv
 from ocptv.output import OCPVersion
 
-from .mocks import MockWriter, assert_json
-
-
-@pytest.fixture
-def writer():
-    w = MockWriter()
-    tv.config_output(w)
-    return w
+from .conftest import MockWriter, assert_json
 
 
 def test_schema_version_is_emitted(writer: MockWriter):

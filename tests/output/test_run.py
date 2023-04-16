@@ -1,25 +1,12 @@
 import time
 import typing as ty
 
-import pytest
-
 import ocptv.output as tv
 from ocptv.formatter import format_timestamp
 from ocptv.output import DiagnosisType, LogSeverity, SoftwareType, TestResult, TestStatus, ValidatorType
 from ocptv.output.emit import JSON
 
-# pytest incorrectly identifies these as pytest related
-TestStatus.__test__ = False  # type: ignore
-TestResult.__test__ = False  # type: ignore
-
-from .mocks import MockWriter, assert_json
-
-
-@pytest.fixture
-def writer():
-    w = MockWriter()
-    tv.config_output(w)
-    return w
+from .conftest import MockWriter, assert_json
 
 
 def test_simple_run(writer: MockWriter):
@@ -92,8 +79,12 @@ def test_run_scope(writer: MockWriter):
 
 def test_run_skip_by_exception(writer: MockWriter):
     run = tv.TestRun(name="run_skip", version="1.0")
-    with run.scope(dut=tv.Dut(id="test_dut")):
-        raise tv.TestRunError(status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE)
+
+    try:
+        with run.scope(dut=tv.Dut(id="test_dut")):
+            raise tv.TestRunError(status=TestStatus.SKIP, result=TestResult.NOT_APPLICABLE)
+    except tv.TestRunError:
+        assert False, "run scope failed to catch control exception"
 
     assert len(writer.lines) == 3
     assert_json(
@@ -261,8 +252,9 @@ def test_step_can_error(writer: MockWriter):
         step = run.add_step("step0")
         with step.scope():
             step.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
+            step.add_error(symptom=Symptom.TEST_SYMPTOM)
 
-    assert len(writer.lines), 7
+    assert len(writer.lines), 8
     assert_json(
         writer.lines[3],
         {
@@ -270,6 +262,44 @@ def test_step_can_error(writer: MockWriter):
                 "error": {
                     "symptom": Symptom.TEST_SYMPTOM,
                     "softwareInfoIds": ["test_dut_0"],
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+        },
+    )
+    assert_json(
+        writer.lines[4],
+        {
+            "testStepArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 4,
+        },
+    )
+
+
+def test_step_can_log(writer: MockWriter):
+    ref_message = "info log"
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_log(severity=LogSeverity.INFO, message=ref_message)
+
+    assert len(writer.lines), 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "log": {
+                    "severity": "INFO",
+                    "message": ref_message,
                 },
                 "testStepId": "0",
             },
@@ -758,3 +788,16 @@ def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
             "timestamp": "<ignored>",
         },
     )
+
+
+def test_run_properties():
+    run = tv.TestRun(
+        name="test",
+        version="1.0",
+        command_line="cl",
+    )
+
+    assert run.name == "test"
+    assert run.version == "1.0"
+    assert run.command_line == "cl"
+    assert run.parameters == {}

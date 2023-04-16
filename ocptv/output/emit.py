@@ -1,19 +1,26 @@
 """
 This module covers the raw output semantics of the OCPTV library.
 """
-import time
-import threading
 import dataclasses as dc
 import json
+import threading
+import time
 import typing as ty
 from enum import Enum
 
-from .objects import ArtifactType, Root, SchemaVersion, RootArtifactType
 from .config import get_config
-
+from .objects import ArtifactType, Root, RootArtifactType, SchemaVersion
 
 Primitive = ty.Union[float, int, bool, str, None]
 JSON = ty.Union[ty.Dict[str, "JSON"], ty.List["JSON"], Primitive]
+
+
+def _is_optional(field: ty.Type):
+    # type hackery incoming
+    # ty.Optional[T] == ty.Union[T, None]
+    # since ty.Union[ty.Union[T,U]] = ty.Union[T,U] we can the
+    # following transitiveness to check that type is optional
+    return field == ty.Optional[field]
 
 
 class ArtifactEmitter:
@@ -29,13 +36,6 @@ class ArtifactEmitter:
 
     @staticmethod
     def _serialize(artifact: ArtifactType):
-        def is_optional(field: ty.Type):
-            # type hackery incoming
-            # ty.Optional[T] == ty.Union[T, None]
-            # since ty.Union[ty.Union[T,U]] = ty.Union[T,U] we can the
-            # following transitiveness to check that type is optional
-            return field == ty.Optional[field]
-
         def visit(
             value: ty.Union[ArtifactType, ty.Dict, ty.List, Primitive],
             formatter: ty.Optional[ty.Callable[[ty.Any], str]] = None,
@@ -50,9 +50,13 @@ class ArtifactEmitter:
                     val = getattr(value, field.name)
 
                     if val is None:
-                        if not is_optional(field.type):
+                        if not _is_optional(field.type):
                             # TODO: fix exception text/type
                             raise RuntimeError("unacceptable none where not optional")
+
+                        # for some reason, py3.7-3.10 fail to count the "continue" below as being covered
+                        # by tests; this next line is a noop which avoids that behavior
+                        val
                         continue
 
                     # spec_field takes precedence over spec_object

@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from ocptv.api import export_api
 
 
-class Writer(ABC):
+class Writer(ABC):  # pragma: no cover
     """
     Abstract writer interface for the lib. Should be used as a base for
     any output writer implementation (for typing purposes).

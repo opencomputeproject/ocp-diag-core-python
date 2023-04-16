@@ -1,6 +1,9 @@
 import json
 import typing as ty
 
+import pytest
+
+import ocptv.output as tv
 from ocptv.output import Writer
 from ocptv.output.emit import JSON
 
@@ -15,6 +18,13 @@ class MockWriter(Writer):
     def decoded_obj(self, index: int) -> ty.Dict[str, JSON]:
         """Decode an expected object from given output index"""
         return json.loads(self.lines[index])
+
+
+@pytest.fixture
+def writer() -> MockWriter:
+    w = MockWriter()
+    tv.config_output(w)
+    return w
 
 
 def assert_json(line: str, expected: JSON):
