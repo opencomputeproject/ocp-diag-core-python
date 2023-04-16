@@ -25,6 +25,4 @@ with run:
   - timezone formatting override (UTC/local or some other logic)
   - output channel (currently uses `configOutput` method call)
 
-- considerations for multithreading/multiprocess
-
 - code of conduct in readme

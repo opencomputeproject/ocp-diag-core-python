@@ -1,3 +1,4 @@
+import threading
 import time
 import typing as ty
 from contextlib import contextmanager
@@ -65,6 +66,7 @@ class MeasurementSeries:
     by using a `.scope()` context manager.
 
     Instances of this type must only be created by calls to `TestStep.start_measurement_series()`.
+    All the methods in this class are threadsafe.
 
     ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesstart
     """
@@ -84,7 +86,7 @@ class MeasurementSeries:
         self._emitter = emitter
         self._id = series_id
 
-        # TODO: threadsafety?
+        self._index_lock = threading.Lock()
         self._index: int = 0
 
         self._start(name, unit, validators, hardware_info, subcomponent, metadata)
@@ -100,15 +102,18 @@ class MeasurementSeries:
             # use local time if not specified
             timestamp = time.time()
 
+        with self._index_lock:
+            index = self._index
+            self._index += 1
+
         measurement = MeasurementSeriesElement(
-            index=self._index,
+            index=index,
             value=value,
             timestamp=timestamp,
             series_id=self._id,
             metadata=metadata,
         )
         self._emitter.emit_impl(measurement)
-        self._index += 1
 
     def _start(
         self,

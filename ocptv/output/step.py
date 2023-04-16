@@ -1,6 +1,7 @@
 """
 This module describes the test steps inside the test run.
 """
+import threading
 import typing as ty
 from contextlib import contextmanager
 
@@ -55,6 +56,7 @@ class TestStep:
     >>>     pass
 
     For other usages, see the the `examples` folder in the root of the project.
+    All the methods in this class are threadsafe.
 
     See spec: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#test-step-artifacts
     """
@@ -65,8 +67,8 @@ class TestStep:
         self._idstr = "{}".format(step_id)
         self._emitter = emitter
 
-        # TODO: threadsafe?
         # TODO: do we want manually controlled values? lambda?
+        self._series_lock = threading.Lock()
         self._measurement_series_id: int = 0
 
     def start(self):
@@ -121,10 +123,14 @@ class TestStep:
         subcomponent: ty.Optional[Subcomponent] = None,
         metadata: ty.Optional[Metadata] = None,
     ) -> MeasurementSeries:
+        with self._series_lock:
+            series_id = self._measurement_series_id
+            self._measurement_series_id += 1
+
         # TODO: arbitrary derivation for measurement id here, but unique for run scope
         series = MeasurementSeries(
             MeasurementSeriesEmitter(self._idstr, self._emitter),
-            "{}_{}".format(self._id, self._measurement_series_id),
+            "{}_{}".format(self._id, series_id),
             name=name,
             unit=unit,
             validators=validators,
@@ -132,7 +138,7 @@ class TestStep:
             subcomponent=subcomponent,
             metadata=metadata,
         )
-        self._measurement_series_id += 1
+
         return series
 
     def add_diagnosis(

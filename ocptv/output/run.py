@@ -2,23 +2,16 @@
 This module describes the high level test run and related objects.
 """
 import sys
+import threading
 import typing as ty
 from contextlib import contextmanager
 
 from ocptv.api import export_api
 
+from .config import get_config
 from .dut import Dut, SoftwareInfo
 from .emit import ArtifactEmitter
-from .objects import (
-    Error,
-    Log,
-    LogSeverity,
-    RunArtifact,
-    RunEnd,
-    RunStart,
-    TestResult,
-    TestStatus,
-)
+from .objects import Error, Log, LogSeverity, RunArtifact, RunEnd, RunStart, TestResult, TestStatus
 from .step import TestStep
 
 
@@ -50,6 +43,7 @@ class TestRun:
     >>>     pass
 
     For other usages, see the the `examples` folder in the root of the project.
+    All the methods in this class are threadsafe.
 
     See spec: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#test-run-artifacts
     """
@@ -76,9 +70,12 @@ class TestRun:
             self._cmdline = self._get_cmdline()
 
         self._params = parameters or {}
-        self._emitter = ArtifactEmitter()
 
-        # TODO: threadsafe?
+        # once a test run has started, all semantically descendant artifacts
+        # must use the same emitter without interruption
+        self._emitter = ArtifactEmitter(writer=get_config().writer)
+
+        self._step_lock = threading.Lock()
         self._step_id: int = 0
 
     # by this point, user code has identified complete dut info or error'd out
@@ -115,8 +112,11 @@ class TestRun:
             self.end(status=TestStatus.COMPLETE, result=TestResult.PASS)
 
     def add_step(self, name: str) -> TestStep:
-        step = TestStep(name, step_id=self._step_id, emitter=self._emitter)
-        self._step_id += 1
+        with self._step_lock:
+            step_id = self._step_id
+            self._step_id += 1
+
+        step = TestStep(name, step_id=step_id, emitter=self._emitter)
         return step
 
     def add_log(self, severity: LogSeverity, message: str):

@@ -2,40 +2,19 @@
 This module contains output channel configuration for the OCPTV library.
 """
 import threading
-from abc import ABC, abstractmethod
 
 from ocptv.api import export_api
 
-
-class Writer(ABC):  # pragma: no cover
-    """
-    Abstract writer interface for the lib. Should be used as a base for
-    any output writer implementation (for typing purposes).
-    NOTE: Writer impls must ensure thread safety.
-    """
-
-    @abstractmethod
-    def write(self, buffer: str):
-        pass
-
-
-@export_api
-class StdoutWriter(Writer):
-    """
-    A simple writer that prints the json to stdout.
-    """
-
-    def __init__(self):
-        self._lock = threading.Lock()
-
-    def write(self, buffer: str):
-        with self._lock:
-            print(buffer)
+from .emit import StdoutWriter, Writer
 
 
 class Config:
     """
     Thread safe storage for module configuration.
+
+    Note: once a test run has started, configuration is saved and will continue to be used
+    until a new test run is instantiated. Normally, there should just be one `TestRun`
+    object per execution, hence this behavior is unlikely to be encountered.
     """
 
     def __init__(self):

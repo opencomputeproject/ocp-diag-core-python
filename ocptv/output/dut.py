@@ -1,3 +1,4 @@
+import threading
 import typing as ty
 
 from ocptv.api import export_api
@@ -102,6 +103,7 @@ class HardwareInfo:
 class Dut:
     """
     The `Dut` instances model the specific device under test that the output is relative to.
+    All the methods in this class are threadsafe.
 
     ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#dutinfo
     """
@@ -116,13 +118,15 @@ class Dut:
         self._name = name
         self._metadata = metadata
 
+        self._info_lock = threading.Lock()
         self._platform_infos: ty.List[PlatformInfo] = []
         self._software_infos: ty.List[SoftwareInfo] = []
         self._hardware_infos: ty.List[HardwareInfo] = []
 
     def add_platform_info(self, info_tag: str) -> PlatformInfo:
         info = PlatformInfo(info_tag=info_tag)
-        self._platform_infos.append(info)
+        with self._info_lock:
+            self._platform_infos.append(info)
         return info
 
     def add_software_info(
@@ -133,17 +137,21 @@ class Dut:
         revision: ty.Optional[str] = None,
         computer_system: ty.Optional[str] = None,
     ) -> SoftwareInfo:
-        # TODO(mimir-d): arbitrary id derivation; does this need to be more readable?
-        info = SoftwareInfo(
-            id="{}_{}".format(self._id, len(self._software_infos)),
-            name=name,
-            type=type,
-            version=version,
-            revision=revision,
-            computer_system=computer_system,
-        )
-        self._software_infos.append(info)
-        return info
+        with self._info_lock:
+            # reserve an index
+            software_id = "{}_{}".format(self._id, len(self._software_infos))
+
+            # TODO(mimir-d): arbitrary id derivation; does this need to be more readable?
+            info = SoftwareInfo(
+                id=software_id,
+                name=name,
+                type=type,
+                version=version,
+                revision=revision,
+                computer_system=computer_system,
+            )
+            self._software_infos.append(info)
+            return info
 
     def add_hardware_info(
         self,
@@ -159,31 +167,41 @@ class Dut:
         computer_system: ty.Optional[str] = None,
         manager: ty.Optional[str] = None,
     ) -> HardwareInfo:
-        info = HardwareInfo(
-            id="{}_{}".format(self._id, len(self._hardware_infos)),
-            name=name,
-            version=version,
-            revision=revision,
-            location=location,
-            serial_no=serial_no,
-            part_no=part_no,
-            manufacturer=manufacturer,
-            manufacturer_part_no=manufacturer_part_no,
-            odata_id=odata_id,
-            computer_system=computer_system,
-            manager=manager,
-        )
-        self._hardware_infos.append(info)
-        return info
+        with self._info_lock:
+            # reserve an index
+            hardware_id = "{}_{}".format(self._id, len(self._hardware_infos))
+
+            info = HardwareInfo(
+                id=hardware_id,
+                name=name,
+                version=version,
+                revision=revision,
+                location=location,
+                serial_no=serial_no,
+                part_no=part_no,
+                manufacturer=manufacturer,
+                manufacturer_part_no=manufacturer_part_no,
+                odata_id=odata_id,
+                computer_system=computer_system,
+                manager=manager,
+            )
+
+            self._hardware_infos.append(info)
+            return info
 
     def to_spec(self) -> DutInfo:
         """internal usage"""
+        with self._info_lock:
+            platforms = [x.to_spec() for x in self._platform_infos]
+            software = [x.to_spec() for x in self._software_infos]
+            hardware = [x.to_spec() for x in self._hardware_infos]
+
         return DutInfo(
             id=self._id,
             name=self._name,
-            platform_infos=[x.to_spec() for x in self._platform_infos],
-            software_infos=[x.to_spec() for x in self._software_infos],
-            hardware_infos=[x.to_spec() for x in self._hardware_infos],
+            platform_infos=platforms,
+            software_infos=software,
+            hardware_infos=hardware,
             metadata=self._metadata,
         )
 

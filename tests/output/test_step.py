@@ -8,9 +8,8 @@ from .conftest import MockWriter, assert_json
 
 
 @pytest.fixture
-def emitter() -> ArtifactEmitter:
-    # emitter output channel is mocked in conftest.py
-    return ArtifactEmitter()
+def emitter(writer: MockWriter) -> ArtifactEmitter:
+    return ArtifactEmitter(writer)
 
 
 def test_step_properties(emitter: ArtifactEmitter):
