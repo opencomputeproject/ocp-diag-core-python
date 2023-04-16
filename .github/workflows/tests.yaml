@@ -24,6 +24,9 @@ jobs:
       - name: Lint with black
         run: |
           black . --check
+      - name: Check typing with mypy
+        run: |
+          mypy . --check-untyped-defs
       - name: Test with pytest
         run: |
           pytest -v

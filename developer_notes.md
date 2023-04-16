@@ -59,8 +59,9 @@ Steps:
     ```bash
     $ pytest -v # check that everything is green
     $ black . # will reformat all the source files
+    $ mypy ocptv tests examples --check-untyped-defs # check the type annotations
     ```
-4. when everything is ready, push and make a PR. This can be done either from the Github website or using [gh cli](https://cli.github.com/manual/gh_pr_create).
+4. if the tests above pass and everything is ready, push and make a PR. This can be done either from the Github website or using [gh cli](https://cli.github.com/manual/gh_pr_create).
 5. the PR will now be reviewed. If everything is ok, a maintainer will merge it to the `dev` branch.
 
 **Note on stacked PRs:** if you'd like to have multiple reviews for a bigger feature implementation, there is the option of making a stack of PRs. The recommendation is that a feature branch is started from `dev`, then multiple branches (each with their own PR) are started from the feature branch. All of these PRs will be **rebased** on the feature branch, followed by a final PR for the feature branch (which likely does not need to be reviewed, based on the stacked reviews). This final feature branch will then be merged normally into `dev`.

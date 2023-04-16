@@ -7,7 +7,7 @@ from ocptv.output.emit import JSON
 
 class MockWriter(Writer):
     def __init__(self):
-        self.lines: list[str] = []
+        self.lines: ty.List[str] = []
 
     def write(self, buffer: str):
         self.lines.append(buffer)

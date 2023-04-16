@@ -116,9 +116,9 @@ class Dut:
         self._name = name
         self._metadata = metadata
 
-        self._platform_infos: list[PlatformInfo] = []
-        self._software_infos: list[SoftwareInfo] = []
-        self._hardware_infos: list[HardwareInfo] = []
+        self._platform_infos: ty.List[PlatformInfo] = []
+        self._software_infos: ty.List[SoftwareInfo] = []
+        self._hardware_infos: ty.List[HardwareInfo] = []
 
     def add_platform_info(self, info_tag: str) -> PlatformInfo:
         info = PlatformInfo(info_tag=info_tag)

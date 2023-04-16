@@ -110,7 +110,7 @@ def demo_custom_writer():
     try:
         run = tv.TestRun(name="custom writer", version="1.0")
         with run.scope(dut=tv.Dut(id="dut0")):
-            threads: list[threading.Thread] = []
+            threads: ty.List[threading.Thread] = []
             for id in range(4):
                 step = run.add_step(f"parallel_step_{id}")
                 threads.append(threading.Thread(target=parallel_step, args=(step,)))

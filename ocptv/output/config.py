@@ -40,7 +40,7 @@ class Config:
 
     def __init__(self):
         self._lock = threading.Lock()
-        self._writer = StdoutWriter()
+        self._writer: Writer = StdoutWriter()
 
     @property
     def writer(self) -> Writer:
