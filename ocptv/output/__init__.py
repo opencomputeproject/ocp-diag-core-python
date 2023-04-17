@@ -15,4 +15,5 @@ from .objects import (
     ValidatorType,
 )
 from .run import TestRun, TestRunError
+from .source import SourceLocation
 from .step import TestStep, TestStepError

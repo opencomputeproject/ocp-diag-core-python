@@ -83,6 +83,28 @@ class Metadata(dict):
     SPEC_OBJECT: ty.ClassVar[str] = "metadata"
 
 
+@dc.dataclass
+class SourceLocation:
+    """
+    Provides information about which file/line of the source code in
+    the diagnostic package generated the output.
+
+    ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#sourcelocation
+    schema url: https://github.com/opencomputeproject/ocp-diag-core/blob/main/json_spec/output/source_location.json
+    schema ref: https://github.com/opencomputeproject/ocp-diag-core/sourceLocation
+    """
+
+    SPEC_OBJECT: ty.ClassVar[str] = "sourceLocation"
+
+    file: str = dc.field(
+        metadata={"spec_field": "file"},
+    )
+
+    line: int = dc.field(
+        metadata={"spec_field": "line"},
+    )
+
+
 class LogSeverity(Enum):
     """
     Known log severity variants.
@@ -121,6 +143,10 @@ class Log:
 
     message: str = dc.field(
         metadata={"spec_field": "message"},
+    )
+
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
     )
 
 
@@ -441,6 +467,10 @@ class Diagnosis:
 
     subcomponent: ty.Optional[Subcomponent]
 
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
+    )
+
 
 @dc.dataclass
 class Error:
@@ -469,6 +499,10 @@ class Error:
             "spec_field": "softwareInfoIds",
             "formatter": lambda objs: [o.id for o in objs],
         },
+    )
+
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
     )
 
 

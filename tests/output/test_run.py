@@ -125,7 +125,12 @@ def test_run_with_diagnosis(writer: MockWriter):
         run.add_log(LogSeverity.INFO, "run info")
         step = run.add_step("step0")
         with step.scope():
-            step.add_diagnosis(DiagnosisType.PASS, verdict=Verdict.PASS, hardware_info=ram0_hardware)
+            step.add_diagnosis(
+                DiagnosisType.PASS,
+                verdict=Verdict.PASS,
+                hardware_info=ram0_hardware,
+                source_location=None,
+            )
 
     assert len(writer.lines) == 7
     assert "schemaVersion" in writer.decoded_obj(0)
@@ -184,14 +189,62 @@ def test_run_with_diagnosis(writer: MockWriter):
     assert "testRunEnd" in artifact
 
 
+def test_run_diagnosis_with_source_location(writer: MockWriter):
+    class Verdict:
+        PASS = "pass-default"
+        UNKNOWN = "unk"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="run_with_diagnosis", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_diagnosis(
+                DiagnosisType.PASS,
+                verdict=Verdict.PASS,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_diagnosis(DiagnosisType.UNKNOWN, verdict=Verdict.UNKNOWN)
+
+    assert len(writer.lines) == 7
+
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "diagnosis": {
+                    "type": "PASS",
+                    "verdict": Verdict.PASS,
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+        },
+    )
+
+    artifact = writer.decoded_obj(4)["testStepArtifact"]
+    loc = artifact["diagnosis"]["sourceLocation"]
+    assert "test_run.py" in loc["file"]
+    assert loc["line"] > 0
+
+
 def test_run_can_error_before_start(writer: MockWriter):
     class Symptom:
         TEST_SYMPTOM = "test-symptom"
 
     run = tv.TestRun(name="test", version="1.0")
-    run.add_error(symptom=Symptom.TEST_SYMPTOM)
+    run.add_error(symptom=Symptom.TEST_SYMPTOM, source_location=None)
 
-    assert len(writer.lines), 2
+    assert len(writer.lines) == 2
     assert_json(
         writer.lines[1],
         {
@@ -219,9 +272,13 @@ def test_run_can_error(writer: MockWriter):
 
     run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
-        run.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
+        run.add_error(
+            symptom=Symptom.TEST_SYMPTOM,
+            software_infos=[bmc_software],
+            source_location=None,
+        )
 
-    assert len(writer.lines), 4
+    assert len(writer.lines) == 4
     assert_json(
         writer.lines[2],
         {
@@ -234,6 +291,48 @@ def test_run_can_error(writer: MockWriter):
             "sequenceNumber": 2,
         },
     )
+
+
+def test_run_can_error_with_source_location(writer: MockWriter):
+    class Symptom:
+        TEST_SYMPTOM = "test-symptom"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        run.add_error(
+            symptom=Symptom.TEST_SYMPTOM,
+            source_location=tv.SourceLocation(
+                filename=ref_source_filename,
+                line_number=ref_source_lineno,
+            ),
+        )
+        run.add_error(symptom=Symptom.TEST_SYMPTOM)
+
+    assert len(writer.lines) == 5
+    assert_json(
+        writer.lines[2],
+        {
+            "testRunArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+            },
+            "sequenceNumber": 2,
+        },
+    )
+
+    artifact = writer.decoded_obj(3)["testRunArtifact"]
+    loc = artifact["error"]["sourceLocation"]
+    assert "test_run.py" in loc["file"]
+    assert loc["line"] > 0
 
 
 def test_step_can_error(writer: MockWriter):
@@ -251,10 +350,14 @@ def test_step_can_error(writer: MockWriter):
     with run.scope(dut=dut):
         step = run.add_step("step0")
         with step.scope():
-            step.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
-            step.add_error(symptom=Symptom.TEST_SYMPTOM)
+            step.add_error(
+                symptom=Symptom.TEST_SYMPTOM,
+                software_infos=[bmc_software],
+                source_location=None,
+            )
+            step.add_error(symptom=Symptom.TEST_SYMPTOM, source_location=None)
 
-    assert len(writer.lines), 8
+    assert len(writer.lines) == 7
     assert_json(
         writer.lines[3],
         {
@@ -283,6 +386,51 @@ def test_step_can_error(writer: MockWriter):
     )
 
 
+def test_step_can_error_with_source_location(writer: MockWriter):
+    class Symptom:
+        TEST_SYMPTOM = "test-symptom"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_error(
+                symptom=Symptom.TEST_SYMPTOM,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_error(symptom=Symptom.TEST_SYMPTOM)
+
+    assert len(writer.lines) == 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+        },
+    )
+
+    artifact = writer.decoded_obj(4)["testStepArtifact"]
+    loc = artifact["error"]["sourceLocation"]
+    assert "test_run.py" in loc["file"]
+    assert loc["line"] > 0
+
+
 def test_step_can_log(writer: MockWriter):
     ref_message = "info log"
 
@@ -290,9 +438,9 @@ def test_step_can_log(writer: MockWriter):
     with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
-            step.add_log(severity=LogSeverity.INFO, message=ref_message)
+            step.add_log(severity=LogSeverity.INFO, message=ref_message, source_location=None)
 
-    assert len(writer.lines), 7
+    assert len(writer.lines) == 6
     assert_json(
         writer.lines[3],
         {
@@ -306,6 +454,50 @@ def test_step_can_log(writer: MockWriter):
             "sequenceNumber": 3,
         },
     )
+
+
+def test_step_can_log_with_source_location(writer: MockWriter):
+    ref_message = "info log"
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_log(
+                severity=LogSeverity.INFO,
+                message=ref_message,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_log(severity=LogSeverity.INFO, message=ref_message)
+
+    assert len(writer.lines) == 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "log": {
+                    "severity": "INFO",
+                    "message": ref_message,
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+        },
+    )
+
+    artifact = writer.decoded_obj(4)["testStepArtifact"]
+    loc = artifact["log"]["sourceLocation"]
+    assert "test_run.py" in loc["file"]
+    assert loc["line"] > 0
 
 
 def test_step_produces_files(writer: MockWriter):
