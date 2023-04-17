@@ -3,9 +3,7 @@ import typing as ty
 
 import pytest
 
-from ocptv.output import config_output
 from ocptv.output.emit import ArtifactEmitter, StdoutWriter
-from ocptv.output.objects import SchemaVersion
 
 from .conftest import MockWriter
 
