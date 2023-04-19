@@ -6,7 +6,8 @@ from ocptv.formatter import format_timestamp
 from ocptv.output import DiagnosisType, LogSeverity, SoftwareType, TestResult, TestStatus, ValidatorType
 from ocptv.output.emit import JSON
 
-from .conftest import MockWriter, assert_json
+from .checks import IgnoreAssert, LambdaAssert, RangeAssert, assert_json
+from .conftest import MockWriter
 
 
 def test_simple_run(writer: MockWriter):
@@ -40,6 +41,7 @@ def test_simple_run(writer: MockWriter):
                 },
             },
             "sequenceNumber": 1,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -53,6 +55,7 @@ def test_simple_run(writer: MockWriter):
                 },
             },
             "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -73,6 +76,7 @@ def test_run_scope(writer: MockWriter):
                 },
             },
             "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -97,6 +101,7 @@ def test_run_skip_by_exception(writer: MockWriter):
                 },
             },
             "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -122,24 +127,18 @@ def test_run_with_diagnosis(writer: MockWriter):
 
     run = tv.TestRun(name="run_with_diagnosis", version="1.0")
     with run.scope(dut=dut):
-        run.add_log(LogSeverity.INFO, "run info")
         step = run.add_step("step0")
         with step.scope():
-            step.add_diagnosis(DiagnosisType.PASS, verdict=Verdict.PASS, hardware_info=ram0_hardware)
+            step.add_diagnosis(
+                DiagnosisType.PASS,
+                verdict=Verdict.PASS,
+                hardware_info=ram0_hardware,
+                source_location=None,
+            )
 
-    assert len(writer.lines) == 7
-    assert "schemaVersion" in writer.decoded_obj(0)
-
-    assert "testRunArtifact" in writer.decoded_obj(1)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(1)["testRunArtifact"])
-    assert "testRunStart" in artifact
-
-    assert "testRunArtifact" in writer.decoded_obj(2)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(2)["testRunArtifact"])
-    assert "log" in artifact
-
+    assert len(writer.lines) == 6
     assert_json(
-        writer.lines[3],
+        writer.lines[2],
         {
             "testStepArtifact": {
                 "testStepStart": {
@@ -147,12 +146,13 @@ def test_run_with_diagnosis(writer: MockWriter):
                 },
                 "testStepId": "0",
             },
-            "sequenceNumber": 3,
+            "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
         },
     )
 
     assert_json(
-        writer.lines[4],
+        writer.lines[3],
         {
             "testStepArtifact": {
                 "diagnosis": {
@@ -162,12 +162,13 @@ def test_run_with_diagnosis(writer: MockWriter):
                 },
                 "testStepId": "0",
             },
-            "sequenceNumber": 4,
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
 
     assert_json(
-        writer.lines[5],
+        writer.lines[4],
         {
             "testStepArtifact": {
                 "testStepEnd": {
@@ -175,13 +176,110 @@ def test_run_with_diagnosis(writer: MockWriter):
                 },
                 "testStepId": "0",
             },
-            "sequenceNumber": 5,
+            "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
 
-    assert "testRunArtifact" in writer.decoded_obj(6)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(6)["testRunArtifact"])
-    assert "testRunEnd" in artifact
+    assert_json(
+        writer.lines[5],
+        {
+            "testRunArtifact": {
+                "testRunEnd": {
+                    "status": "COMPLETE",
+                    "result": "PASS",
+                },
+            },
+            "sequenceNumber": 5,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_run_diagnosis_with_source_location(writer: MockWriter):
+    class Verdict:
+        PASS = "pass-default"
+        UNKNOWN = "unk"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="run_with_diagnosis", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_diagnosis(
+                DiagnosisType.PASS,
+                verdict=Verdict.PASS,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_diagnosis(DiagnosisType.UNKNOWN, verdict=Verdict.UNKNOWN)
+
+    assert len(writer.lines) == 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "diagnosis": {
+                    "type": "PASS",
+                    "verdict": Verdict.PASS,
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+    assert_json(
+        writer.lines[4],
+        {
+            "testStepArtifact": {
+                "diagnosis": {
+                    "type": "UNKNOWN",
+                    "verdict": Verdict.UNKNOWN,
+                    "sourceLocation": {
+                        "file": LambdaAssert(lambda x: "test_run.py" in ty.cast(str, x)),
+                        "line": RangeAssert(low=1),
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_run_can_log(writer: MockWriter):
+    ref_message = "info log"
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        run.add_log(severity=LogSeverity.INFO, message=ref_message)
+
+    assert len(writer.lines) == 4
+    assert_json(
+        writer.lines[2],
+        {
+            "testRunArtifact": {
+                "log": {
+                    "severity": "INFO",
+                    "message": ref_message,
+                    "sourceLocation": IgnoreAssert(),
+                },
+            },
+            "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
+        },
+    )
 
 
 def test_run_can_error_before_start(writer: MockWriter):
@@ -189,9 +287,9 @@ def test_run_can_error_before_start(writer: MockWriter):
         TEST_SYMPTOM = "test-symptom"
 
     run = tv.TestRun(name="test", version="1.0")
-    run.add_error(symptom=Symptom.TEST_SYMPTOM)
+    run.add_error(symptom=Symptom.TEST_SYMPTOM, source_location=None)
 
-    assert len(writer.lines), 2
+    assert len(writer.lines) == 2
     assert_json(
         writer.lines[1],
         {
@@ -202,6 +300,7 @@ def test_run_can_error_before_start(writer: MockWriter):
                 },
             },
             "sequenceNumber": 1,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -219,9 +318,13 @@ def test_run_can_error(writer: MockWriter):
 
     run = tv.TestRun(name="test", version="1.0")
     with run.scope(dut=dut):
-        run.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
+        run.add_error(
+            symptom=Symptom.TEST_SYMPTOM,
+            software_infos=[bmc_software],
+            source_location=None,
+        )
 
-    assert len(writer.lines), 4
+    assert len(writer.lines) == 4
     assert_json(
         writer.lines[2],
         {
@@ -232,6 +335,63 @@ def test_run_can_error(writer: MockWriter):
                 },
             },
             "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_run_can_error_with_source_location(writer: MockWriter):
+    class Symptom:
+        TEST_SYMPTOM = "test-symptom"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        run.add_error(
+            symptom=Symptom.TEST_SYMPTOM,
+            source_location=tv.SourceLocation(
+                filename=ref_source_filename,
+                line_number=ref_source_lineno,
+            ),
+        )
+        run.add_error(symptom=Symptom.TEST_SYMPTOM)
+
+    assert len(writer.lines) == 5
+    assert_json(
+        writer.lines[2],
+        {
+            "testRunArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+            },
+            "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+    assert_json(
+        writer.lines[3],
+        {
+            "testRunArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": LambdaAssert(lambda x: "test_run.py" in ty.cast(str, x)),
+                        "line": RangeAssert(low=1),
+                    },
+                },
+            },
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -251,10 +411,14 @@ def test_step_can_error(writer: MockWriter):
     with run.scope(dut=dut):
         step = run.add_step("step0")
         with step.scope():
-            step.add_error(symptom=Symptom.TEST_SYMPTOM, software_infos=[bmc_software])
-            step.add_error(symptom=Symptom.TEST_SYMPTOM)
+            step.add_error(
+                symptom=Symptom.TEST_SYMPTOM,
+                software_infos=[bmc_software],
+                source_location=None,
+            )
+            step.add_error(symptom=Symptom.TEST_SYMPTOM, source_location=None)
 
-    assert len(writer.lines), 8
+    assert len(writer.lines) == 7
     assert_json(
         writer.lines[3],
         {
@@ -266,6 +430,7 @@ def test_step_can_error(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -279,6 +444,67 @@ def test_step_can_error(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_step_can_error_with_source_location(writer: MockWriter):
+    class Symptom:
+        TEST_SYMPTOM = "test-symptom"
+
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_error(
+                symptom=Symptom.TEST_SYMPTOM,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_error(symptom=Symptom.TEST_SYMPTOM)
+
+    assert len(writer.lines) == 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+    assert_json(
+        writer.lines[4],
+        {
+            "testStepArtifact": {
+                "error": {
+                    "symptom": Symptom.TEST_SYMPTOM,
+                    "softwareInfoIds": [],
+                    "sourceLocation": {
+                        "file": LambdaAssert(lambda x: "test_run.py" in ty.cast(str, x)),
+                        "line": RangeAssert(low=1),
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -290,9 +516,9 @@ def test_step_can_log(writer: MockWriter):
     with run.scope(dut=tv.Dut(id="test_dut")):
         step = run.add_step("step0")
         with step.scope():
-            step.add_log(severity=LogSeverity.INFO, message=ref_message)
+            step.add_log(severity=LogSeverity.INFO, message=ref_message, source_location=None)
 
-    assert len(writer.lines), 7
+    assert len(writer.lines) == 6
     assert_json(
         writer.lines[3],
         {
@@ -304,6 +530,66 @@ def test_step_can_log(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_step_can_log_with_source_location(writer: MockWriter):
+    ref_message = "info log"
+    ref_source_filename = "test.py"
+    ref_source_lineno = 42
+
+    run = tv.TestRun(name="test", version="1.0")
+    with run.scope(dut=tv.Dut(id="test_dut")):
+        step = run.add_step("step0")
+        with step.scope():
+            step.add_log(
+                severity=LogSeverity.INFO,
+                message=ref_message,
+                source_location=tv.SourceLocation(
+                    filename=ref_source_filename,
+                    line_number=ref_source_lineno,
+                ),
+            )
+            step.add_log(severity=LogSeverity.INFO, message=ref_message)
+
+    assert len(writer.lines) == 7
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "log": {
+                    "severity": "INFO",
+                    "message": ref_message,
+                    "sourceLocation": {
+                        "file": ref_source_filename,
+                        "line": ref_source_lineno,
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
+        },
+    )
+
+    assert_json(
+        writer.lines[4],
+        {
+            "testStepArtifact": {
+                "log": {
+                    "severity": "INFO",
+                    "message": ref_message,
+                    "sourceLocation": {
+                        "file": LambdaAssert(lambda x: "test_run.py" in ty.cast(str, x)),
+                        "line": RangeAssert(low=1),
+                    },
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -342,6 +628,7 @@ def test_step_produces_files(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -359,6 +646,7 @@ def test_step_produces_files(writer: MockWriter):
                 "testStepId": "1",
             },
             "sequenceNumber": 6,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -394,6 +682,7 @@ def test_step_produces_extensions(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -411,6 +700,7 @@ def test_step_produces_extensions(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -437,6 +727,7 @@ def test_step_produces_simple_measurements(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -452,6 +743,7 @@ def test_step_produces_simple_measurements(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -482,6 +774,7 @@ def test_step_produces_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -497,6 +790,7 @@ def test_step_produces_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 4,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -512,6 +806,7 @@ def test_step_produces_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 5,
+            "timestamp": IgnoreAssert(),
         },
     )
     assert_json(
@@ -525,6 +820,7 @@ def test_step_produces_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 6,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -545,16 +841,39 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
             fan_speed.end()
 
     assert len(writer.lines) == 12
+    assert_json(
+        writer.lines[3],
+        {
+            "testStepArtifact": {
+                "measurementSeriesStart": {
+                    "name": "fan_speed",
+                    "unit": "rpm",
+                    "measurementSeriesId": "0_0",
+                    "validators": [],
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
+        },
+    )
 
-    # fan_speed start
-    assert "testStepArtifact" in writer.decoded_obj(3)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(3)["testStepArtifact"])
-    assert "measurementSeriesStart" in artifact
-
-    # temp start
-    assert "testStepArtifact" in writer.decoded_obj(5)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(5)["testStepArtifact"])
-    assert "measurementSeriesStart" in artifact
+    assert_json(
+        writer.lines[5],
+        {
+            "testStepArtifact": {
+                "measurementSeriesStart": {
+                    "name": "temp",
+                    "unit": "C",
+                    "measurementSeriesId": "0_1",
+                    "validators": [],
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 5,
+            "timestamp": IgnoreAssert(),
+        },
+    )
 
     assert_json(
         writer.lines[6],
@@ -569,6 +888,7 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 6,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -585,18 +905,39 @@ def test_step_produces_concurrent_measurement_series(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 7,
+            "timestamp": IgnoreAssert(),
         },
     )
 
-    # temp end
-    assert "testStepArtifact" in writer.decoded_obj(8)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(8)["testStepArtifact"])
-    assert "measurementSeriesEnd" in artifact
+    assert_json(
+        writer.lines[8],
+        {
+            "testStepArtifact": {
+                "measurementSeriesEnd": {
+                    "measurementSeriesId": "0_1",
+                    "totalCount": 1,
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 8,
+            "timestamp": IgnoreAssert(),
+        },
+    )
 
-    # fan_speed end
-    assert "testStepArtifact" in writer.decoded_obj(9)
-    artifact = ty.cast(ty.Dict[str, JSON], writer.decoded_obj(9)["testStepArtifact"])
-    assert "measurementSeriesEnd" in artifact
+    assert_json(
+        writer.lines[9],
+        {
+            "testStepArtifact": {
+                "measurementSeriesEnd": {
+                    "measurementSeriesId": "0_0",
+                    "totalCount": 2,
+                },
+                "testStepId": "0",
+            },
+            "sequenceNumber": 9,
+            "timestamp": IgnoreAssert(),
+        },
+    )
 
 
 def test_step_produces_measurements_with_validators(writer: MockWriter):
@@ -654,6 +995,7 @@ def test_step_produces_measurements_with_validators(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -679,6 +1021,7 @@ def test_step_produces_measurements_with_validators(writer: MockWriter):
                 "testStepId": "1",
             },
             "sequenceNumber": 6,
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -763,7 +1106,7 @@ def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
                 },
             },
             "sequenceNumber": 1,
-            "timestamp": "<ignored>",
+            "timestamp": IgnoreAssert(),
         },
     )
 
@@ -785,7 +1128,7 @@ def test_step_produces_measurements_with_dut_subcomponent(writer: MockWriter):
                 "testStepId": "0",
             },
             "sequenceNumber": 3,
-            "timestamp": "<ignored>",
+            "timestamp": IgnoreAssert(),
         },
     )
 

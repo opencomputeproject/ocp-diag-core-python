@@ -1,7 +1,8 @@
 import ocptv.output as tv
 from ocptv.output import OCPVersion
 
-from .conftest import MockWriter, assert_json
+from .checks import IgnoreAssert, assert_json
+from .conftest import MockWriter
 
 
 def test_schema_version_is_emitted(writer: MockWriter):
@@ -17,5 +18,6 @@ def test_schema_version_is_emitted(writer: MockWriter):
                 "minor": OCPVersion.VERSION_2_0.value[1],
             },
             "sequenceNumber": 0,
+            "timestamp": IgnoreAssert(),
         },
     )

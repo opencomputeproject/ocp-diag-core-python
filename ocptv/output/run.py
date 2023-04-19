@@ -12,6 +12,7 @@ from .config import get_config
 from .dut import Dut, SoftwareInfo
 from .emit import ArtifactEmitter
 from .objects import Error, Log, LogSeverity, RunArtifact, RunEnd, RunStart, TestResult, TestStatus
+from .source import SourceLocation, get_caller_source
 from .step import TestStep
 
 
@@ -119,10 +120,19 @@ class TestRun:
         step = TestStep(name, step_id=step_id, emitter=self._emitter)
         return step
 
-    def add_log(self, severity: LogSeverity, message: str):
+    def add_log(
+        self,
+        severity: LogSeverity,
+        message: str,
+        source_location: ty.Optional[SourceLocation] = SourceLocation.CALLER,
+    ):
+        if source_location is SourceLocation.CALLER:
+            source_location = get_caller_source()
+
         log = Log(
             severity=severity,
             message=message,
+            source_location=source_location.to_spec() if source_location else None,
         )
         self._emitter.emit(RunArtifact(impl=log))
 
@@ -132,14 +142,19 @@ class TestRun:
         symptom: str,
         message: ty.Optional[str] = None,
         software_infos: ty.Optional[ty.List[SoftwareInfo]] = None,
+        source_location: ty.Optional[SourceLocation] = SourceLocation.CALLER,
     ):
         if software_infos is None:
             software_infos = []
+
+        if source_location is SourceLocation.CALLER:
+            source_location = get_caller_source()
 
         error = Error(
             symptom=symptom,
             message=message,
             software_infos=[o.to_spec() for o in software_infos],
+            source_location=source_location.to_spec() if source_location else None,
         )
         self._emitter.emit(RunArtifact(impl=error))
 

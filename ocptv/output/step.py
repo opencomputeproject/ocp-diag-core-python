@@ -27,6 +27,7 @@ from .objects import (
     StepStart,
     TestStatus,
 )
+from .source import SourceLocation, get_caller_source
 
 
 @export_api
@@ -149,20 +150,34 @@ class TestStep:
         message: ty.Optional[str] = None,
         hardware_info: ty.Optional[HardwareInfo] = None,
         subcomponent: ty.Optional[Subcomponent] = None,
+        source_location: ty.Optional[SourceLocation] = SourceLocation.CALLER,
     ):
+        if source_location is SourceLocation.CALLER:
+            source_location = get_caller_source()
+
         diag = Diagnosis(
             verdict=verdict,
             type=diagnosis_type,
             message=message,
             hardware_info=hardware_info.to_spec() if hardware_info else None,
             subcomponent=subcomponent.to_spec() if subcomponent else None,
+            source_location=source_location.to_spec() if source_location else None,
         )
         self._emitter.emit(StepArtifact(id=self._idstr, impl=diag))
 
-    def add_log(self, severity: LogSeverity, message: str):
+    def add_log(
+        self,
+        severity: LogSeverity,
+        message: str,
+        source_location: ty.Optional[SourceLocation] = SourceLocation.CALLER,
+    ):
+        if source_location is SourceLocation.CALLER:
+            source_location = get_caller_source()
+
         log = Log(
             severity=severity,
             message=message,
+            source_location=source_location.to_spec() if source_location else None,
         )
         self._emitter.emit(StepArtifact(id=self._idstr, impl=log))
 
@@ -172,14 +187,19 @@ class TestStep:
         symptom: str,
         message: ty.Optional[str] = None,
         software_infos: ty.Optional[ty.List[SoftwareInfo]] = None,
+        source_location: ty.Optional[SourceLocation] = SourceLocation.CALLER,
     ):
         if software_infos is None:
             software_infos = []
+
+        if source_location is SourceLocation.CALLER:
+            source_location = get_caller_source()
 
         error = Error(
             symptom=symptom,
             message=message,
             software_infos=[o.to_spec() for o in software_infos],
+            source_location=source_location.to_spec() if source_location else None,
         )
         self._emitter.emit(StepArtifact(id=self._idstr, impl=error))
 
