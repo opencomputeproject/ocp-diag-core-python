@@ -24,7 +24,8 @@ class SourceLocation:
     >>> # will result in the fields identifying the next line itself
     >>> run.add_log(LogSeverity.DEBUG, "Some interesting message.")
 
-    See spec: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#sourcelocation
+    Specification reference:
+        https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#sourcelocation
     """
 
     CALLER: "SourceLocation"

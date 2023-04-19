@@ -39,9 +39,10 @@ class Config:
     """
     Thread safe storage for module configuration.
 
-    Note: once a test run has started, configuration is saved and will continue to be used
-    until a new test run is instantiated. Normally, there should just be one `TestRun`
-    object per execution, hence this behavior is unlikely to be encountered.
+    Note: once a test run has started, configuration is considered committed and will
+    continue to be used until a new test run is instantiated. Normally, there should
+    just be one `TestRun` object per execution, hence this behavior is unlikely to be
+    encountered.
     """
 
     def __init__(self):
