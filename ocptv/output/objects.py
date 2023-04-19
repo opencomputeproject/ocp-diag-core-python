@@ -1015,5 +1015,5 @@ class Root:
         },
     )
 
-    # def __post_init__(self):
-    #     check_field_types(self)
+    def __post_init__(self):
+        check_field_types(self)

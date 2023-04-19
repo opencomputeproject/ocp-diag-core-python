@@ -27,6 +27,9 @@ else:  # pragma: no cover
         return tuple(x for x in typ.__args__ if not isinstance(x, ty.TypeVar))
 
 
+from .config import get_config
+
+
 class Dataclass(Protocol):
     """
     Protocol type to describe all low level serializable objects in this file.
@@ -192,6 +195,15 @@ def _check_type_any(obj: CheckedValue, hint: ty.Type, trace: ty.List[str]):
 def check_field_types(obj: Dataclass):
     """
     Check that the values inside the given dataclass' fields are of the correct
-    type at runtime. Throws TypeError on failures.
+    type at runtime.
+    This currently covers needed field types used in this lib, but is not generic
+    enough to cover all typing configurations. See tests for more details.
+
+    Can be disabled in lib config. See `ocptv.output.config()`.
+
+    :throws TypeError on failures.
     """
+    if not get_config().enable_runtime_checks:
+        return
+
     _check_type_any(obj, type(obj), trace=[])

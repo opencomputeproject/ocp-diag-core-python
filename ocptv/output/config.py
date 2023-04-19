@@ -2,10 +2,36 @@
 This module contains output channel configuration for the OCPTV library.
 """
 import threading
+import typing as ty
+from abc import ABC, abstractmethod
 
 from ocptv.api import export_api
 
-from .emit import StdoutWriter, Writer
+
+class Writer(ABC):  # pragma: no cover
+    """
+    Abstract writer interface for the lib. Should be used as a base for
+    any output writer implementation (for typing purposes).
+    NOTE: Writer impls must ensure thread safety.
+    """
+
+    @abstractmethod
+    def write(self, buffer: str):
+        pass
+
+
+@export_api
+class StdoutWriter(Writer):
+    """
+    A simple writer that prints the json to stdout.
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+
+    def write(self, buffer: str):
+        with self._lock:
+            print(buffer)
 
 
 class Config:
@@ -20,6 +46,7 @@ class Config:
     def __init__(self):
         self._lock = threading.Lock()
         self._writer: Writer = StdoutWriter()
+        self._enable_runtime_checks = True
 
     @property
     def writer(self) -> Writer:
@@ -31,18 +58,40 @@ class Config:
         with self._lock:
             self._writer = writer
 
+    @property
+    def enable_runtime_checks(self):
+        with self._lock:
+            return self._enable_runtime_checks
+
+    @enable_runtime_checks.setter
+    def enable_runtime_checks(self, enable: bool):
+        with self._lock:
+            self._enable_runtime_checks = enable
+
 
 # module scoped configuration (similar to python logging)
 _config: Config = Config()
 
 
 @export_api
-def config_output(writer: Writer):
+def config(
+    *,
+    writer: ty.Optional[Writer] = None,
+    enable_runtime_checks: ty.Optional[bool] = None,
+):
     """
-    Configure the output channel for this library.
+    Configure how the ocptv.output lib behaves.
+
+    :param Writer writer: if provided, set the output channel writer.
+    :param bool enable_runtime_checks: if provided, enables or disables runtime type checks.
     """
     global _config
-    _config.writer = writer
+
+    if writer is not None:
+        _config.writer = writer
+
+    if enable_runtime_checks is not None:
+        _config.enable_runtime_checks = enable_runtime_checks
 
 
 def get_config() -> Config:
