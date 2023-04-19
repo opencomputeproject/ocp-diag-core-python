@@ -6,39 +6,10 @@ import json
 import threading
 import time
 import typing as ty
-from abc import ABC, abstractmethod
 from enum import Enum
 
-from ocptv.api import export_api
-
+from .config import Writer
 from .objects import ArtifactType, Root, RootArtifactType, SchemaVersion
-
-
-class Writer(ABC):  # pragma: no cover
-    """
-    Abstract writer interface for the lib. Should be used as a base for
-    any output writer implementation (for typing purposes).
-    NOTE: Writer impls must ensure thread safety.
-    """
-
-    @abstractmethod
-    def write(self, buffer: str):
-        pass
-
-
-@export_api
-class StdoutWriter(Writer):
-    """
-    A simple writer that prints the json to stdout.
-    """
-
-    def __init__(self):
-        self._lock = threading.Lock()
-
-    def write(self, buffer: str):
-        with self._lock:
-            print(buffer)
-
 
 Primitive = ty.Union[float, int, bool, str, None]
 JSON = ty.Union[ty.Dict[str, "JSON"], ty.List["JSON"], Primitive]

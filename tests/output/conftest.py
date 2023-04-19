@@ -1,5 +1,6 @@
 import json
 import typing as ty
+from contextlib import contextmanager
 
 import pytest
 
@@ -23,5 +24,18 @@ class MockWriter(Writer):
 @pytest.fixture
 def writer() -> MockWriter:
     w = MockWriter()
-    tv.config_output(w)
+    tv.config(writer=w)
     return w
+
+
+@contextmanager
+def disable_runtime_checks():
+    from ocptv.output.config import get_config
+
+    try:
+        prev = get_config().enable_runtime_checks
+        tv.config(enable_runtime_checks=False)
+
+        yield
+    finally:
+        tv.config(enable_runtime_checks=prev)

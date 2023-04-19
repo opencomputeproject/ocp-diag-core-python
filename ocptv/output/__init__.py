@@ -1,7 +1,6 @@
 # following are the only public api exports
-from .config import config_output
+from .config import StdoutWriter, Writer, config
 from .dut import Dut, Subcomponent
-from .emit import StdoutWriter, Writer
 from .measurement import Validator
 from .objects import (
     DiagnosisType,

@@ -96,7 +96,7 @@ def demo_custom_writer():
             with self.__lock:
                 print(buffer, file=self.__file)
 
-    tv.config_output(writer=FileSyncWriter(sys.stdout))
+    tv.config(writer=FileSyncWriter(sys.stdout))
 
     def parallel_step(step: tv.TestStep):
         with step.scope():
@@ -122,7 +122,7 @@ def demo_custom_writer():
                 t.join()
     finally:
         # return to default, useful for rest of demos
-        tv.config_output(StdoutWriter())
+        tv.config(writer=StdoutWriter())
 
 
 @banner
@@ -158,7 +158,7 @@ def demo_python_logging_io():
         def write(self, buffer: str):
             logging.info(buffer)
 
-    tv.config_output(writer=LoggingWriter())
+    tv.config(writer=LoggingWriter())
 
     class Handler(logging.StreamHandler):
         def __init__(self, run: tv.TestRun):
@@ -193,7 +193,7 @@ def demo_python_logging_io():
             log.debug("debug log sample")
             log.warning("warn level here")
     finally:
-        tv.config_output(StdoutWriter())
+        tv.config(writer=StdoutWriter())
         log.removeHandler(log.handlers[-1])
 
 

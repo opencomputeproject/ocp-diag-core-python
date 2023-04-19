@@ -3,9 +3,10 @@ import typing as ty
 
 import pytest
 
-from ocptv.output.emit import ArtifactEmitter, StdoutWriter
+from ocptv.output import StdoutWriter
+from ocptv.output.emit import ArtifactEmitter
 
-from .conftest import MockWriter
+from .conftest import MockWriter, disable_runtime_checks
 
 
 def test_stdout_writer(capsys: pytest.CaptureFixture):
@@ -40,9 +41,10 @@ def test_emit_fails_none_in_nonoptional(writer: MockWriter):
         SPEC_OBJECT: ty.ClassVar[str] = "test"
         nonoptional: str
 
-    e = ArtifactEmitter(writer)
-    with pytest.raises(RuntimeError):
-        e.emit(TestObject(nonoptional=None))  # type: ignore[arg-type]
+    with disable_runtime_checks():
+        e = ArtifactEmitter(writer)
+        with pytest.raises(RuntimeError):
+            e.emit(TestObject(nonoptional=None))  # type: ignore[arg-type]
 
 
 def test_emit_fails_missing_spec_object(writer: MockWriter):
@@ -71,6 +73,7 @@ def test_emil_fails_unserializable_type(writer: MockWriter):
     class Unserializable:
         SPEC_OBJECT: ty.ClassVar[str] = "test"
 
-    e = ArtifactEmitter(writer)
-    with pytest.raises(RuntimeError):
-        e.emit(Unserializable())  # type: ignore[arg-type]
+    with disable_runtime_checks():
+        e = ArtifactEmitter(writer)
+        with pytest.raises(RuntimeError):
+            e.emit(Unserializable())  # type: ignore[arg-type]
