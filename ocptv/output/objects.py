@@ -23,7 +23,13 @@ if ty.TYPE_CHECKING:  # pragma: no cover
 else:
     Protocol = object
 
+from .config import get_config
 from .runtime_checks import check_field_types
+
+
+def format_timestamp_with_tzinfo(ts: float) -> str:
+    """Curry form with timezone from config"""
+    return format_timestamp(ts, tz=get_config().timezone)
 
 
 class ArtifactType(Protocol):
@@ -739,7 +745,7 @@ class MeasurementSeriesElement:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
 
@@ -1011,7 +1017,7 @@ class Root:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
 

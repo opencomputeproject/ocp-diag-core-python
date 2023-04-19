@@ -3,6 +3,7 @@ import sys
 import threading
 import time
 import typing as ty
+from datetime import timedelta, timezone
 from pathlib import Path
 
 # add the local lib to sys.path for discovery
@@ -400,6 +401,19 @@ def demo_step_extension():
             )
 
 
+@banner
+def demo_different_timezone():
+    tz = timezone(offset=timedelta(hours=-2))
+    try:
+        tv.config(timezone=tz)
+
+        run = tv.TestRun(name="test", version="1.0")
+        with run.scope(dut=tv.Dut(id="dut0")):
+            pass
+    finally:
+        tv.config(timezone=None)
+
+
 if __name__ == "__main__":
     demo_no_contexts()
     demo_context_run_skip()
@@ -415,3 +429,4 @@ if __name__ == "__main__":
     demo_run_error_with_dut()
     demo_create_measurements_with_subcomponent()
     demo_step_extension()
+    demo_different_timezone()
