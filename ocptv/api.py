@@ -21,6 +21,6 @@ def export_api(ctor: ty.Callable[..., _RT]) -> ty.Callable[..., _RT]:
 
     if inspect.isclass(ctor):
         ctor.__doc__ = "{}\nThis type can be instantiated by user code directly.".format(
-            textwrap.dedent(ctor.__doc__),
+            textwrap.dedent(ctor.__doc__ or ""),
         )
     return ctor

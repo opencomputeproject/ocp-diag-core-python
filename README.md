@@ -52,7 +52,7 @@ See [docs.python.org](https://docs.python.org/3/library/venv.html) for more deta
 
 The specification does not impose any particular level of usage. To be compliant, a diagnostic package just needs output the correct artifact messages in the correct format. However, any particular such diagnostic is free to choose what aspects it needs to use/output; eg. a simple validation test may not output any measurements, opting to just have a final Diagnosis outcome.
 
-**Full API reference is available [here](https://github.com/opencomputeproject/ocp-diag-python/docs/index.md).**
+**Full API reference is available [here](https://github.com/opencomputeproject/ocp-diag-python/blob/dev/docs/index.md).**
 
 A very simple starter example, which just outputs a diagnosis:
 ```py
@@ -109,6 +109,52 @@ Expected output (slightly reformatted for readability):
 ```
 
 For more examples of usage, there are a number available in the [examples folder](https://github.com/opencomputeproject/ocp-diag-python/tree/dev/examples), along with expected outputs.
+
+### Configuration
+
+There are a couple of knobs that can be used to configure the behavior of the `ocptv` library:
+- **enable_runtime_checks**: when this is true, the lib code will try to validate the actual types of the data being fed to it against what the specification requires. This may be disable if performance is critical or if it shows any false positives. Default is `True`.
+- **timezone**: a `datetime.tzinfo` implementation overriding the default local timezone. Default is `None`, which means local timezone.
+- **writer**: a `ocptv.output.Writer` implementation that is used for the lowlevel writing of serialized JSON strings. Default is `ocptv.output.StdoutWriter` which just writes everything to standard output.
+
+To setup any of these aspects:
+```py
+import ocptv.output as tv
+
+# signature:
+# config(
+#     writer: ty.Optional[Writer] = None,
+#     enable_runtime_checks: ty.Optional[bool] = None,
+#     timezone: ty.Union[tzinfo, None] = _NOT_SET,
+# )
+
+# disable the runtime type checks
+tv.config(enable_runtime_checks=False)
+
+# change writer and timezone
+tv.config(timezone=pytz.UTC, writer=FileWriter("ocptv.out"))
+```
+
+When using the configuration endpoint, at the moment of starting a test run, the configuration is considered committed. The settings can still be technically modified, but it might result in unexpected behavior, eg. changing the `writer` will result in a partial output, which is not compliant.
+
+There's also some more advanced configuration in `config.py` and `advanced.py` in the [examples folder](https://github.com/opencomputeproject/ocp-diag-python/tree/dev/examples).
+
+### Examples
+
+The examples in [examples folder](https://github.com/opencomputeproject/ocp-diag-python/tree/dev/examples) are setup to run as a module.
+
+```bash
+# run all demos available
+$ python -m examples
+
+# list demo names
+$ python -m examples list
+
+# run a specific example
+$ python -m examples demo_diagnosis
+```
+
+The [sample output file](https://github.com/opencomputeproject/ocp-diag-python/tree/dev/examples/sample_output.txt) shows a run of all demos. This is meant as documentation.
 
 ### Developer notes
 
