@@ -34,11 +34,11 @@ class MeasurementSeriesEmitter(ArtifactEmitter):
 @export_api
 class Validator:
     """
-    The `Validator` object represents a named validation that is relevant to a measurement or
+    The ``Validator`` object represents a named validation that is relevant to a measurement or
     measurement series.
 
     Specification reference:
-        https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
+    - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
     """
 
     def __init__(
@@ -52,15 +52,15 @@ class Validator:
         """
         Initialize a new validator object.
 
-        :param ValidatorType type: classification for this validator.
+        :param type: classification for this validator.
             See: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validatortype
         :param value: reference value for this validator. Can be a primitive type (int, float, str, bool)
             or a homogenous list of the same primitives. The list is only valid for the set-type validations.
-        :param Optional[str] name: identification for this validator item.
-        :param Optional[Metadata] metadata: dictionary with unspecified metadata for this validator.
+        :param name: identification for this validator item.
+        :param metadata: dictionary with unspecified metadata for this validator.
 
         For additional details on parameters, see:
-            https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
+        - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
         """
 
         self._spec_object = ValidatorSpec(
@@ -71,20 +71,26 @@ class Validator:
         )
 
     def to_spec(self) -> ValidatorSpec:
+        """
+        Internal usage. Convert to low-level model.
+
+        :meta private:
+        """
         return self._spec_object
 
 
 class MeasurementSeries:
     """
-    The `MeasurementSeries` instances model a specific time-based list of values relevant to the diagnostic.
-    A series is started by default on instantiation and must be ended with the `.end()` method or
-    by using a `.scope()` context manager.
+    The ``MeasurementSeries`` instances model a specific time-based list of values relevant to the diagnostic.
+    A series is started by default on instantiation and must be ended with the ``.end()`` method or
+    by using a ``.scope()`` context manager.
 
-    Instances of this type must only be created by calls to `TestStep.start_measurement_series()`.
+    Instances of this type must only be created by calls to ``TestStep.start_measurement_series()``.
+
     All the methods in this class are threadsafe.
 
     Specification reference:
-        https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesstart
+    - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesstart
     """
 
     def __init__(
@@ -117,10 +123,10 @@ class MeasurementSeries:
         """
         Emit a new measurement item for this series.
 
-        :param Union[int, float, str, bool] value: value of the taken measurement.
-        :param Optional[float] timestamp: wallclock time when this measurement was taken. If unspecified,
+        :param value: value of the taken measurement.
+        :param timestamp: wallclock time when this measurement was taken. If unspecified,
             it will be computed based on the current wallclock time on the system running the diagnostic.
-        :param Optional[Metadata] metadata: dictionary with unspecified metadata for this measurement item.
+        :param metadata: dictionary with unspecified metadata for this measurement item.
         """
 
         if timestamp is None:
@@ -168,7 +174,7 @@ class MeasurementSeries:
         Emit a measurement series end artifact.
 
         Specification reference:
-            https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesend
+        - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesend
         """
 
         end = MeasurementSeriesEnd(
@@ -184,9 +190,12 @@ class MeasurementSeries:
         When this scope ends, whether normally or from as exception, the end artifact is emitted.
 
         Usage:
-        >>> fan_speeds = step.start_measurement_series(name="fan0", ...)
-        >>> with fan_speeds.scope():
-        >>>     fan_speeds.add_measurement(value=4200)
+
+        .. code-block:: python
+
+            fan_speeds = step.start_measurement_series(name="fan0", ...)
+            with fan_speeds.scope():
+                fan_speeds.add_measurement(value=4200)
         """
 
         try:

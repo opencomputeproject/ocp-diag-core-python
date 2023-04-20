@@ -105,9 +105,9 @@ def config(
     """
     Configure how the ocptv.output lib behaves.
 
-    :param Writer writer: if provided, set the output channel writer.
-    :param bool enable_runtime_checks: if provided, enables or disables runtime type checks.
-    :param tzinfo timezone: if provided, sets the timezone for the output formatted datetime fields.
+    :param writer: if provided, set the output channel writer.
+    :param enable_runtime_checks: if provided, enables or disables runtime type checks.
+    :param timezone: if provided, sets the timezone for the output formatted datetime fields.
         To reset to local timezone, `None` value should be used.
     """
     global _config

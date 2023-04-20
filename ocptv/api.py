@@ -1,4 +1,5 @@
 import inspect
+import textwrap
 import typing as ty
 
 _RT = ty.TypeVar("_RT")
@@ -15,9 +16,11 @@ def export_api(ctor: ty.Callable[..., _RT]) -> ty.Callable[..., _RT]:
     If applied to a class type, a suffix will be appended to its docstring to specify
     that it is a public export and can be directly instantiated by user code.
 
-    All public export items must be re-exported in __init__.py at top module level.
+    All public export items must be re-exported in `__init__.py` at top module level.
     """
 
     if inspect.isclass(ctor):
-        ctor.__doc__ = f"{ctor.__doc__}\nThis type can be instantiated by user code directly."
+        ctor.__doc__ = "{}\nThis type can be instantiated by user code directly.".format(
+            textwrap.dedent(ctor.__doc__),
+        )
     return ctor

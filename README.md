@@ -50,7 +50,9 @@ See [docs.python.org](https://docs.python.org/3/library/venv.html) for more deta
 
 ### Usage
 
-The specification does not impose any particular level of usage. To be compliant, one should just output the correct artifact messages in the correct format. However, any particular diagnostic package is free to choose what aspects it needs to use/output; eg. a simple validation test may not output any measurements, opting to just have a final Diagnosis outcome.
+The specification does not impose any particular level of usage. To be compliant, a diagnostic package just needs output the correct artifact messages in the correct format. However, any particular such diagnostic is free to choose what aspects it needs to use/output; eg. a simple validation test may not output any measurements, opting to just have a final Diagnosis outcome.
+
+**Full API reference is available [here](https://github.com/opencomputeproject/ocp-diag-python/docs/index.md).**
 
 A very simple starter example, which just outputs a diagnosis:
 ```py
