@@ -10,39 +10,60 @@ This project is part of [ocp-diag-core](https://github.com/opencomputeproject/oc
 
 ### Installation
 
-Stable releases of the **ocp-diag-python** codebase are published to **PyPI** under the package name [ocptv](https://pypi.org/project/ocptv/), and can be easily installed with `pip`.
+Stable releases of the **ocp-diag-python** codebase are published to **PyPI** under the package name [ocptv](https://pypi.org/project/ocptv/), and can be easily installed with python package managers.
 
 **Minimum python version is currently py37.**
 
 For general usage, the following steps should be sufficient to get the latest stable version:
 
-```bash
-# [option 1] install system-wide, from any shell
-$ pip install ocptv
+- **\[option 1]**: using the [Package Installer for Python](https://pypi.org/project/pip/)
 
-# [option 2] inside your python diagnostic rootdir, create a venv and activate it
-$ python -m venv env
-$ source env/bin/activate
-$ pip install ocptv
-```
+    *\[optional]* if your project needs or already has a venv, activate it first, otherwise the installation will be system-wide.
+    ```bash
+    $ python -m venv env
+    $ source env/bin/activate
+    ```
+
+    Then just install:
+    ```bash
+    $ pip install ocptv
+    ```
+- **\[option 2]** using [Python Poetry](https://python-poetry.org/)
+
+    *\[optional]* for a completely new project, run either `poetry new` or `poetry init` (see [poetry docs](https://python-poetry.org/docs/basic-usage/#project-setup)). Then:
+
+    ```bash
+    $ poetry add ocptv
+    ```
 
 To use the bleeding edge instead of the stable version, the git repository should be cloned.
-This assumes that the clone is manually kept up to date by git pulling whenever there are new commits upstream.
+This assumes that the clone is manually kept up to date by git pulling whenever there are new commits upstream. All of the installation methods below will automatically use the latest library code.
 
+First clone the upstream latest code:
 ```bash
-# in order to install system-wide, run
 $ git clone https://github.com/opencomputeproject/ocp-diag-python.git
 $ cd ocp-diag-python
 $ git checkout dev # dev branch has the latest code
-
-# [option 1] install to system, inside the ocp-diag-python dir
-$ pip install -e .
-
-# [option 2] for a venv install, inside your python diagnostic rootdir, create and/or activate
-$ python -m venv env # optional if already created
-$ source env/bin/activate
-$ pip install -e path/to/git_cloned/ocp-diag-python
 ```
+
+- **\[option 1]**: using `pip` editable install
+
+    Similar to the stable version steps above, but with `-e`. Either system-wide or inside a venv.
+    ```bash
+    $ pip install -e path/to/git_cloned/ocp-diag-python
+    ```
+- **\[option 2]**: using `poetry`
+
+    The `--editable` flag is still in **1.2beta** as of this writing, so add the dependency to your `pyproject.toml` with `develop = true`:
+    ```toml
+    [tool.poetry.dependencies]
+    ocptv = { path = "path/to/git_cloned/ocp-diag-python", develop = true }
+    ```
+
+    Then install everything:
+    ```bash
+    $ poetry install
+    ```
 
 The instructions above assume a Linux-type system. However, the steps should be identical on Windows and MacOS platforms.
 

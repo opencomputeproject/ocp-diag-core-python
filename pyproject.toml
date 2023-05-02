@@ -58,3 +58,9 @@ line-length = 120
 
 [tool.isort]
 profile = "black"
+
+[tool.poetry]
+name = "ocptv"
+version = "0.1.3"
+description = "OCP Test & Validation project api"
+authors = ["OCP Test & Validation <ocp-test-validation@OCP-All.groups.io>"]
