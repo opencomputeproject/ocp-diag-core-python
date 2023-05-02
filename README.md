@@ -141,6 +141,7 @@ There are a couple of knobs that can be used to configure the behavior of the `o
 To setup any of these aspects:
 ```py
 import ocptv.output as tv
+from ocptv.output import StdoutWriter
 
 # signature:
 # config(
@@ -153,7 +154,7 @@ import ocptv.output as tv
 tv.config(enable_runtime_checks=False)
 
 # change writer and timezone
-tv.config(timezone=pytz.UTC, writer=FileWriter("ocptv.out"))
+tv.config(timezone=pytz.UTC, writer=StdoutWriter())
 ```
 
 When using the configuration endpoint, at the moment of starting a test run, the configuration is considered committed. The settings can still be technically modified, but it might result in unexpected behavior, eg. changing the `writer` will result in a partial output, which is not compliant.

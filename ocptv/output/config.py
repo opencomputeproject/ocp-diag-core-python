@@ -4,7 +4,7 @@ This module contains output channel configuration for the OCPTV library.
 import threading
 import typing as ty
 from abc import ABC, abstractmethod
-from datetime import tzinfo
+from datetime import timezone, tzinfo
 
 from ocptv.api import export_api
 
@@ -49,7 +49,7 @@ class Config:
         self._lock = threading.Lock()
         self._writer: Writer = StdoutWriter()
         self._enable_runtime_checks = True
-        self._tzinfo: ty.Union[tzinfo, None] = None
+        self._tzinfo: ty.Union[tzinfo, None] = timezone.utc
 
     @property
     def writer(self) -> Writer:
@@ -108,7 +108,8 @@ def config(
     :param writer: if provided, set the output channel writer.
     :param enable_runtime_checks: if provided, enables or disables runtime type checks.
     :param timezone: if provided, sets the timezone for the output formatted datetime fields.
-        To reset to local timezone, `None` value should be used.
+        Use `None` to automatically determine the local system timezone.
+        The library default, if never configured, is UTC.
     """
     global _config
 
