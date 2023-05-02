@@ -34,10 +34,11 @@ class MeasurementSeriesEmitter(ArtifactEmitter):
 @export_api
 class Validator:
     """
-    The `Validator` object represent a named validation that is relevant to a measurement or
+    The ``Validator`` object represents a named validation that is relevant to a measurement or
     measurement series.
 
-    ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
+    Specification reference:
+    - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
     """
 
     def __init__(
@@ -48,6 +49,20 @@ class Validator:
         name: ty.Optional[str] = None,
         metadata: ty.Optional[Metadata] = None,
     ):
+        """
+        Initialize a new validator object.
+
+        :param type: classification for this validator.
+            See: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validatortype
+        :param value: reference value for this validator. Can be a primitive type (int, float, str, bool)
+            or a homogenous list of the same primitives. The list is only valid for the set-type validations.
+        :param name: identification for this validator item.
+        :param metadata: dictionary with unspecified metadata for this validator.
+
+        For additional details on parameters, see:
+        - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#validator
+        """
+
         self._spec_object = ValidatorSpec(
             name=name,
             type=type,
@@ -56,19 +71,26 @@ class Validator:
         )
 
     def to_spec(self) -> ValidatorSpec:
+        """
+        Internal usage. Convert to low-level model.
+
+        :meta private:
+        """
         return self._spec_object
 
 
 class MeasurementSeries:
     """
-    The `MeasurementSeries` instances model a specific time-based list of values relevant to the diagnostic.
-    A series is started by default on instantiation and must be ended manually with the `.end()` method or
-    by using a `.scope()` context manager.
+    The ``MeasurementSeries`` instances model a specific time-based list of values relevant to the diagnostic.
+    A series is started by default on instantiation and must be ended with the ``.end()`` method or
+    by using a ``.scope()`` context manager.
 
-    Instances of this type must only be created by calls to `TestStep.start_measurement_series()`.
+    Instances of this type must only be created by calls to ``TestStep.start_measurement_series()``.
+
     All the methods in this class are threadsafe.
 
-    ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesstart
+    Specification reference:
+    - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesstart
     """
 
     def __init__(
@@ -98,6 +120,15 @@ class MeasurementSeries:
         timestamp: ty.Optional[float] = None,
         metadata: ty.Optional[Metadata] = None,
     ):
+        """
+        Emit a new measurement item for this series.
+
+        :param value: value of the taken measurement.
+        :param timestamp: wallclock time when this measurement was taken. If unspecified,
+            it will be computed based on the current wallclock time on the system running the diagnostic.
+        :param metadata: dictionary with unspecified metadata for this measurement item.
+        """
+
         if timestamp is None:
             # use local time if not specified
             timestamp = time.time()
@@ -139,6 +170,13 @@ class MeasurementSeries:
         self._emitter.emit_impl(start)
 
     def end(self):
+        """
+        Emit a measurement series end artifact.
+
+        Specification reference:
+        - https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#measurementseriesend
+        """
+
         end = MeasurementSeriesEnd(
             series_id=self._id,
             total_count=self._index,
@@ -147,6 +185,19 @@ class MeasurementSeries:
 
     @contextmanager
     def scope(self):
+        """
+        Wrap the measurement series into a scope that guarantees exception safety.
+        When this scope ends, whether normally or from as exception, the end artifact is emitted.
+
+        Usage:
+
+        .. code-block:: python
+
+            fan_speeds = step.start_measurement_series(name="fan0", ...)
+            with fan_speeds.scope():
+                fan_speeds.add_measurement(value=4200)
+        """
+
         try:
             yield
         finally:

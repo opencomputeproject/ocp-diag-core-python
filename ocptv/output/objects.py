@@ -1,14 +1,15 @@
 """
 Low level object models that are to be serialized as JSON.
+
 NOT PUBLIC API, these are not intended to be used by client code
-unless explicitly exported as public in __init__.py
+unless explicitly exported as public in ``__init__.py``.
 
 Developer notes:
-A field can either have metadata.spec_field set or field.SPEC_OBJECT set, not both.
-If SPEC_OBJECT is set, this field is an union type and serialization should take the
-value in `SPEC_OBJECT` as the serialized field name. Otherwise, the metadata.spec_field
+A field can either have ``metadata.spec_field`` set or ``field.SPEC_OBJECT`` set, not both.
+If ``SPEC_OBJECT`` is set, this field is an union type and serialization should take the
+value in ``SPEC_OBJECT`` as the serialized field name. Otherwise, the ``metadata.spec_field``
 says what the serializer should use for field name.
-In general, metadata.spec_field should only be present for primitive types.
+In general, ``metadata.spec_field`` should only be present for primitive types.
 """
 import dataclasses as dc
 import typing as ty
@@ -23,7 +24,13 @@ if ty.TYPE_CHECKING:  # pragma: no cover
 else:
     Protocol = object
 
+from .config import get_config
 from .runtime_checks import check_field_types
+
+
+def format_timestamp_with_tzinfo(ts: float) -> str:
+    """Curry form with timezone from config"""
+    return format_timestamp(ts, tz=get_config().timezone)
 
 
 class ArtifactType(Protocol):
@@ -739,7 +746,7 @@ class MeasurementSeriesElement:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
 
@@ -1011,7 +1018,7 @@ class Root:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
 

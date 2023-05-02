@@ -75,3 +75,11 @@ It may be useful to run the github actions locally, both when working on them di
 The [act-cli](https://github.com/nektos/act) project can be used for this. It will download a docker container (with an LTS ubuntu) and run all of the relevant github actions in the repo. This assumes that you have [docker installed](https://docs.docker.com/get-docker/).
 
 Run it just by simply using the `act -j pytest` command in the repository root dir.
+
+### API documentation
+
+When necessary, likely due to code/doc changes, regenerate the api reference by running:
+
+```bash
+$ .scripts/gendoc.sh
+```

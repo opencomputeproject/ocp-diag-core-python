@@ -16,3 +16,7 @@ from .objects import (
 from .run import TestRun, TestRunError
 from .source import SourceLocation
 from .step import TestStep, TestStepError
+
+# the specification version that this module implements
+# ref: https://github.com/opencomputeproject/ocp-diag-core/tree/5708d0c/json_spec
+__spec_version__ = OCPVersion.VERSION_2_0

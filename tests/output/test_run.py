@@ -7,7 +7,7 @@ from ocptv.output import DiagnosisType, LogSeverity, SoftwareType, TestResult, T
 from ocptv.output.emit import JSON
 
 from .checks import IgnoreAssert, LambdaAssert, RangeAssert, assert_json
-from .conftest import MockWriter
+from .conftest import MockWriter, offset_timezone
 
 
 def test_simple_run(writer: MockWriter):
@@ -77,6 +77,28 @@ def test_run_scope(writer: MockWriter):
             },
             "sequenceNumber": 2,
             "timestamp": IgnoreAssert(),
+        },
+    )
+
+
+def test_run_timezone(writer: MockWriter):
+    with offset_timezone(utc_offset_hours=0):
+        run = tv.TestRun(name="test", version="1.0")
+        with run.scope(dut=tv.Dut(id="test_dut")):
+            pass
+
+    assert len(writer.lines) == 3
+    assert_json(
+        writer.lines[2],
+        {
+            "testRunArtifact": {
+                "testRunEnd": {
+                    "status": "COMPLETE",
+                    "result": "PASS",
+                },
+            },
+            "sequenceNumber": 2,
+            "timestamp": LambdaAssert(lambda x: ty.cast(str, x).endswith("Z")),
         },
     )
 

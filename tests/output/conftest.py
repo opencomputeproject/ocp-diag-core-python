@@ -1,6 +1,7 @@
 import json
 import typing as ty
 from contextlib import contextmanager
+from datetime import timedelta, timezone
 
 import pytest
 
@@ -39,3 +40,17 @@ def disable_runtime_checks():
         yield
     finally:
         tv.config(enable_runtime_checks=prev)
+
+
+@contextmanager
+def offset_timezone(utc_offset_hours: float):
+    from ocptv.output.config import get_config
+
+    try:
+        prev = get_config().timezone
+        tz = timezone(offset=timedelta(hours=utc_offset_hours))
+        tv.config(timezone=tz)
+
+        yield
+    finally:
+        tv.config(timezone=prev)
