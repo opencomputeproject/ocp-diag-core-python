@@ -70,8 +70,16 @@ There are tools that automate this process (although in a slightly different fas
 
 ### Github actions
 
-It may be useful to run the github actions locally, both when working on them directly but also on the python codebase (useful to check that other supported python versions haven't been broken; you may need to modify conditions in [tests.yaml](./.github/workflows/tests.yaml)).
+It may be useful to run the github actions locally, both when working on them directly but also on the python codebase (useful to check that other supported python versions haven't been broken).
 
 The [act-cli](https://github.com/nektos/act) project can be used for this. It will download a docker container (with an LTS ubuntu) and run all of the relevant github actions in the repo. This assumes that you have [docker installed](https://docs.docker.com/get-docker/).
 
-Run it just by simply using the `act` command in the repository root dir.
+Run it just by simply using the `act -j pytest` command in the repository root dir.
+
+### API documentation
+
+When necessary, likely due to code/doc changes, regenerate the api reference by running:
+
+```bash
+$ .scripts/gendoc.sh
+```

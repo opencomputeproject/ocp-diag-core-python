@@ -8,7 +8,7 @@ import time
 import typing as ty
 from enum import Enum
 
-from .config import get_config
+from .config import Writer
 from .objects import ArtifactType, Root, RootArtifactType, SchemaVersion
 
 Primitive = ty.Union[float, int, bool, str, None]
@@ -29,10 +29,15 @@ class ArtifactEmitter:
     Uses the low level dataclass models for the spec, but should not be used in user code.
     """
 
-    def __init__(self):
+    def __init__(self, writer: Writer):
+        self._seq_lock = threading.Lock()
         self._seq = 0
-        self._lock = threading.Lock()
-        self._writer = get_config().writer
+
+        self._writer = writer
+
+        # use this event to ensure that the schema version message is the first to be
+        # emitted, even when the initial writer was preempted
+        self._version_emitted = threading.Event()
 
     @staticmethod
     def _serialize(artifact: ArtifactType):
@@ -88,17 +93,21 @@ class ArtifactEmitter:
         return json.dumps(visit(artifact))
 
     def emit(self, artifact: RootArtifactType):
-        if self._seq == 0:
+        """
+        Emit the given artifact after serialization to JSON.
+        This method is threadsafe.
+        """
+        seq = self._next_seq_no()
+        if seq == 0:
             self._emit_version()
+            seq = self._next_seq_no()
 
-        # this sync point needs to happen before the write
-        with self._lock:
-            # TODO: multiprocess will have an issue here
-            self._seq += 1
+        # wait to make sure that version schema was written first
+        self._version_emitted.wait()
 
         root = Root(
             impl=artifact,
-            sequence_number=self._seq,
+            sequence_number=seq,
             timestamp=time.time(),
         )
         self._writer.write(self._serialize(root))
@@ -107,7 +116,18 @@ class ArtifactEmitter:
         # use defaults for schema version here, should be set to latest
         root = Root(
             impl=SchemaVersion(),
-            sequence_number=self._seq,
+            # seq number is always 0 for the spec version artifact
+            sequence_number=0,
             timestamp=time.time(),
         )
         self._writer.write(self._serialize(root))
+
+        # awake all threads that may have been waiting on version first write
+        self._version_emitted.set()
+
+    def _next_seq_no(self) -> int:
+        with self._seq_lock:
+            seq = self._seq
+            self._seq += 1
+
+        return seq

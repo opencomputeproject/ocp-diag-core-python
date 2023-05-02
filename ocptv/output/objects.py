@@ -1,14 +1,15 @@
 """
 Low level object models that are to be serialized as JSON.
+
 NOT PUBLIC API, these are not intended to be used by client code
-unless explicitly exported as public in __init__.py
+unless explicitly exported as public in ``__init__.py``.
 
 Developer notes:
-A field can either have metadata.spec_field set or field.SPEC_OBJECT set, not both.
-If SPEC_OBJECT is set, this field is an union type and serialization should take the
-value in `SPEC_OBJECT` as the serialized field name. Otherwise, the metadata.spec_field
+A field can either have ``metadata.spec_field`` set or ``field.SPEC_OBJECT`` set, not both.
+If ``SPEC_OBJECT`` is set, this field is an union type and serialization should take the
+value in ``SPEC_OBJECT`` as the serialized field name. Otherwise, the ``metadata.spec_field``
 says what the serializer should use for field name.
-In general, metadata.spec_field should only be present for primitive types.
+In general, ``metadata.spec_field`` should only be present for primitive types.
 """
 import dataclasses as dc
 import typing as ty
@@ -22,6 +23,14 @@ if ty.TYPE_CHECKING:  # pragma: no cover
     from typing_extensions import Protocol
 else:
     Protocol = object
+
+from .config import get_config
+from .runtime_checks import check_field_types
+
+
+def format_timestamp_with_tzinfo(ts: float) -> str:
+    """Curry form with timezone from config"""
+    return format_timestamp(ts, tz=get_config().timezone)
 
 
 class ArtifactType(Protocol):
@@ -66,6 +75,9 @@ class SchemaVersion:
         metadata={"spec_field": "minor"},
     )
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 # NOTE: This is intentionally not a dataclass. It is exported as public api
 # because it does not have any inherent structure, other than a dict collection.
@@ -81,6 +93,28 @@ class Metadata(dict):
     """
 
     SPEC_OBJECT: ty.ClassVar[str] = "metadata"
+
+
+@dc.dataclass
+class SourceLocation:
+    """
+    Provides information about which file/line of the source code in
+    the diagnostic package generated the output.
+
+    ref: https://github.com/opencomputeproject/ocp-diag-core/tree/main/json_spec#sourcelocation
+    schema url: https://github.com/opencomputeproject/ocp-diag-core/blob/main/json_spec/output/source_location.json
+    schema ref: https://github.com/opencomputeproject/ocp-diag-core/sourceLocation
+    """
+
+    SPEC_OBJECT: ty.ClassVar[str] = "sourceLocation"
+
+    file: str = dc.field(
+        metadata={"spec_field": "file"},
+    )
+
+    line: int = dc.field(
+        metadata={"spec_field": "line"},
+    )
 
 
 class LogSeverity(Enum):
@@ -123,6 +157,13 @@ class Log:
         metadata={"spec_field": "message"},
     )
 
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
+    )
+
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class File:
@@ -158,6 +199,9 @@ class File:
     )
 
     metadata: ty.Optional[Metadata]
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 class SubcomponentType(Enum):
@@ -213,6 +257,9 @@ class Subcomponent:
         metadata={"spec_field": "revision"},
     )
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 class DiagnosisType(Enum):
     """
@@ -244,6 +291,9 @@ class PlatformInfo:
     info: str = dc.field(
         metadata={"spec_field": "info"},
     )
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 class SoftwareType(Enum):
@@ -300,6 +350,9 @@ class SoftwareInfo:
     computer_system: ty.Optional[str] = dc.field(
         metadata={"spec_field": "computerSystem"},
     )
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 @dc.dataclass
@@ -363,6 +416,9 @@ class HardwareInfo:
         metadata={"spec_field": "manager"},
     )
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 def format_hardware_info(obj: HardwareInfo) -> str:
     return obj.id
@@ -403,6 +459,9 @@ class DutInfo:
 
     metadata: ty.Optional[Metadata]
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class Diagnosis:
@@ -441,6 +500,13 @@ class Diagnosis:
 
     subcomponent: ty.Optional[Subcomponent]
 
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
+    )
+
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class Error:
@@ -471,10 +537,23 @@ class Error:
         },
     )
 
+    source_location: ty.Optional[SourceLocation] = dc.field(
+        metadata={"spec_field": "sourceLocation"},
+    )
+
+    def __post_init__(self):
+        check_field_types(self)
+
 
 MeasurementValueType = ty.Union[float, int, bool, str]
 
-ValidatorValueType = ty.Union[ty.List["ValidatorValueType"], MeasurementValueType]
+ValidatorValueType = ty.Union[
+    ty.List[float],
+    ty.List[int],
+    ty.List[bool],
+    ty.List[str],
+    MeasurementValueType,
+]
 
 
 class ValidatorType(Enum):
@@ -528,6 +607,9 @@ class Validator:
 
     metadata: ty.Optional[Metadata]
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class Measurement:
@@ -567,6 +649,9 @@ class Measurement:
 
     subcomponent: ty.Optional[Subcomponent]
     metadata: ty.Optional[Metadata]
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 @dc.dataclass
@@ -608,6 +693,9 @@ class MeasurementSeriesStart:
     subcomponent: ty.Optional[Subcomponent]
     metadata: ty.Optional[Metadata]
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class MeasurementSeriesEnd:
@@ -629,6 +717,9 @@ class MeasurementSeriesEnd:
     total_count: int = dc.field(
         metadata={"spec_field": "totalCount"},
     )
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 @dc.dataclass
@@ -655,7 +746,7 @@ class MeasurementSeriesElement:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
 
@@ -665,17 +756,24 @@ class MeasurementSeriesElement:
 
     metadata: ty.Optional[Metadata]
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 MeasurementSeriesType = ty.Union[MeasurementSeriesStart, MeasurementSeriesEnd, MeasurementSeriesElement]
 
-# note: these must specify some bounds for the extension content in python, despite
-# the spec saying that it can be anything. This is necessary for the json serializer
-# to actually know how to output the data.
-ExtensionContentType = ty.Union[
-    ty.Dict[str, "ExtensionContentType"],
-    ty.List["ExtensionContentType"],
-    ty.Union[float, int, bool, str, None],
-]
+if ty.TYPE_CHECKING:
+    # note: these must specify some bounds for the extension content in python, despite
+    # the spec saying that it can be anything. This is necessary for the json serializer
+    # to actually know how to output the data.
+    ExtensionContentType = ty.Union[  # pragma: no cover
+        ty.Dict[str, "ExtensionContentType"],
+        ty.List["ExtensionContentType"],
+        ty.Union[float, int, bool, str, None],
+    ]
+else:
+    # the runtime checker cannot deal with recursive types, and this is meant to be any
+    ExtensionContentType = ty.Any
 
 
 @dc.dataclass
@@ -698,6 +796,9 @@ class Extension:
     content: ExtensionContentType = dc.field(
         metadata={"spec_field": "content"},
     )
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 @dc.dataclass
@@ -730,6 +831,9 @@ class RunStart:
     )
 
     dut_info: DutInfo
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 class TestStatus(Enum):
@@ -793,6 +897,9 @@ class RunEnd:
         },
     )
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class RunArtifact:
@@ -827,6 +934,9 @@ class StepStart:
         metadata={"spec_field": "name"},
     )
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 @dc.dataclass
 class StepEnd:
@@ -847,6 +957,9 @@ class StepEnd:
             "formatter": format_enum,
         },
     )
+
+    def __post_init__(self):
+        check_field_types(self)
 
 
 @dc.dataclass
@@ -878,6 +991,9 @@ class StepArtifact:
         Extension,
     ]
 
+    def __post_init__(self):
+        check_field_types(self)
+
 
 RootArtifactType = ty.Union[SchemaVersion, RunArtifact, StepArtifact]
 
@@ -902,6 +1018,9 @@ class Root:
     timestamp: float = dc.field(
         metadata={
             "spec_field": "timestamp",
-            "formatter": format_timestamp,
+            "formatter": format_timestamp_with_tzinfo,
         },
     )
+
+    def __post_init__(self):
+        check_field_types(self)

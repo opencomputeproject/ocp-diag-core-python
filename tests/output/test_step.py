@@ -1,16 +1,16 @@
 import pytest
 
 import ocptv.output as tv
-from ocptv.output import TestResult, TestStatus
+from ocptv.output import TestStatus
 from ocptv.output.emit import ArtifactEmitter
 
-from .conftest import MockWriter, assert_json
+from .checks import IgnoreAssert, assert_json
+from .conftest import MockWriter
 
 
 @pytest.fixture
-def emitter() -> ArtifactEmitter:
-    # emitter output channel is mocked in conftest.py
-    return ArtifactEmitter()
+def emitter(writer: MockWriter) -> ArtifactEmitter:
+    return ArtifactEmitter(writer)
 
 
 def test_step_properties(emitter: ArtifactEmitter):
@@ -38,5 +38,6 @@ def test_step_error_emits_outcome(writer: MockWriter, emitter: ArtifactEmitter):
                 "testStepId": "1",
             },
             "sequenceNumber": 2,
+            "timestamp": IgnoreAssert(),
         },
     )

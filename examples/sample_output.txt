@@ -1,0 +1,193 @@
+--------------------------------------------------------------------------------
+demo_python_logging_io
+--------------------------------------------------------------------------------
+[pylog] {"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.555274+01:00"}
+[pylog] {"testRunArtifact": {"testRunStart": {"name": "run_with_diagnosis", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.555454+01:00"}
+[pylog] {"testRunArtifact": {"log": {"severity": "INFO", "message": "ocp log thru python logger", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/advanced.py", "line": 40}}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.556019+01:00"}
+[pylog] {"testRunArtifact": {"log": {"severity": "DEBUG", "message": "debug log sample", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/advanced.py", "line": 40}}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.556184+01:00"}
+[pylog] {"testRunArtifact": {"log": {"severity": "WARNING", "message": "warn level here", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/advanced.py", "line": 40}}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.556332+01:00"}
+[pylog] {"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.556422+01:00"}
+
+--------------------------------------------------------------------------------
+demo_different_timezone
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T00:15:16.556591-02:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T00:15:16.556712-02:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T00:15:16.556792-02:00"}
+
+--------------------------------------------------------------------------------
+demo_custom_writer
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.556902+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "custom writer", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.556931+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "parallel_step_0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.557244+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepStart": {"name": "parallel_step_1"}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.557521+01:00"}
+{"testStepArtifact": {"testStepId": "2", "testStepStart": {"name": "parallel_step_2"}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.557697+01:00"}
+{"testStepArtifact": {"testStepId": "1", "log": {"severity": "INFO", "message": "log from: parallel_step_1, ts: 1681956916.557574", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.557993+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "log from: parallel_step_0, ts: 1681956916.557298", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.558233+01:00"}
+{"testStepArtifact": {"testStepId": "2", "log": {"severity": "INFO", "message": "log from: parallel_step_2, ts: 1681956916.5577528", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 7, "timestamp": "2023-04-20T03:15:16.558515+01:00"}
+{"testStepArtifact": {"testStepId": "3", "testStepStart": {"name": "parallel_step_3"}}, "sequenceNumber": 8, "timestamp": "2023-04-20T03:15:16.558646+01:00"}
+{"testStepArtifact": {"testStepId": "3", "log": {"severity": "INFO", "message": "log from: parallel_step_3, ts: 1681956916.558704", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 9, "timestamp": "2023-04-20T03:15:16.558797+01:00"}
+{"testStepArtifact": {"testStepId": "1", "log": {"severity": "INFO", "message": "log from: parallel_step_1, ts: 1681956916.5591235", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 10, "timestamp": "2023-04-20T03:15:16.559224+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "log from: parallel_step_0, ts: 1681956916.5593638", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 11, "timestamp": "2023-04-20T03:15:16.559436+01:00"}
+{"testStepArtifact": {"testStepId": "2", "log": {"severity": "INFO", "message": "log from: parallel_step_2, ts: 1681956916.5596383", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 12, "timestamp": "2023-04-20T03:15:16.559707+01:00"}
+{"testStepArtifact": {"testStepId": "3", "log": {"severity": "INFO", "message": "log from: parallel_step_3, ts: 1681956916.5599375", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 13, "timestamp": "2023-04-20T03:15:16.560001+01:00"}
+{"testStepArtifact": {"testStepId": "1", "log": {"severity": "INFO", "message": "log from: parallel_step_1, ts: 1681956916.560369", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 14, "timestamp": "2023-04-20T03:15:16.560433+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "log from: parallel_step_0, ts: 1681956916.5605338", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 15, "timestamp": "2023-04-20T03:15:16.560604+01:00"}
+{"testStepArtifact": {"testStepId": "2", "log": {"severity": "INFO", "message": "log from: parallel_step_2, ts: 1681956916.5608366", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 16, "timestamp": "2023-04-20T03:15:16.560898+01:00"}
+{"testStepArtifact": {"testStepId": "3", "log": {"severity": "INFO", "message": "log from: parallel_step_3, ts: 1681956916.5611389", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 17, "timestamp": "2023-04-20T03:15:16.561204+01:00"}
+{"testStepArtifact": {"testStepId": "1", "log": {"severity": "INFO", "message": "log from: parallel_step_1, ts: 1681956916.5615704", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 18, "timestamp": "2023-04-20T03:15:16.561631+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "log from: parallel_step_0, ts: 1681956916.5617085", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 19, "timestamp": "2023-04-20T03:15:16.561768+01:00"}
+{"testStepArtifact": {"testStepId": "2", "log": {"severity": "INFO", "message": "log from: parallel_step_2, ts: 1681956916.5620093", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 20, "timestamp": "2023-04-20T03:15:16.562072+01:00"}
+{"testStepArtifact": {"testStepId": "3", "log": {"severity": "INFO", "message": "log from: parallel_step_3, ts: 1681956916.562332", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 21, "timestamp": "2023-04-20T03:15:16.562390+01:00"}
+{"testStepArtifact": {"testStepId": "1", "log": {"severity": "INFO", "message": "log from: parallel_step_1, ts: 1681956916.5627327", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 22, "timestamp": "2023-04-20T03:15:16.562815+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "log from: parallel_step_0, ts: 1681956916.5628848", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 23, "timestamp": "2023-04-20T03:15:16.562942+01:00"}
+{"testStepArtifact": {"testStepId": "2", "log": {"severity": "INFO", "message": "log from: parallel_step_2, ts: 1681956916.5631871", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 24, "timestamp": "2023-04-20T03:15:16.563255+01:00"}
+{"testStepArtifact": {"testStepId": "3", "log": {"severity": "INFO", "message": "log from: parallel_step_3, ts: 1681956916.5635033", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/config.py", "line": 58}}}, "sequenceNumber": 25, "timestamp": "2023-04-20T03:15:16.563565+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 26, "timestamp": "2023-04-20T03:15:16.564006+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 27, "timestamp": "2023-04-20T03:15:16.564121+01:00"}
+{"testStepArtifact": {"testStepId": "2", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 28, "timestamp": "2023-04-20T03:15:16.564416+01:00"}
+{"testStepArtifact": {"testStepId": "3", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 29, "timestamp": "2023-04-20T03:15:16.564686+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 30, "timestamp": "2023-04-20T03:15:16.564764+01:00"}
+
+--------------------------------------------------------------------------------
+demo_step_extension
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.564911+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.564943+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.565090+01:00"}
+{"testStepArtifact": {"testStepId": "0", "extension": {"name": "simple", "content": "extension_identifier"}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.565142+01:00"}
+{"testStepArtifact": {"testStepId": "0", "extension": {"name": "complex", "content": {"@type": "DemoExtension", "field": "demo", "subtypes": [1, 42]}}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.565186+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.565239+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.565281+01:00"}
+
+--------------------------------------------------------------------------------
+demo_create_file_during_step
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.565380+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.565409+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.565485+01:00"}
+{"testStepArtifact": {"testStepId": "0", "file": {"displayName": "device_info.csv", "uri": "file:///root/device_info.csv", "isSnapshot": true}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.565572+01:00"}
+{"testStepArtifact": {"testStepId": "0", "file": {"displayName": "file_with_meta.txt", "uri": "ftp://file", "isSnapshot": true, "metadata": {"k": "v"}}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.565665+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.565733+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.565774+01:00"}
+
+--------------------------------------------------------------------------------
+demo_create_measurement_simple
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.565869+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.565897+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.565970+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurement": {"name": "fan_speed", "value": "1200", "unit": "rpm", "validators": []}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.566075+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurement": {"name": "temperature", "value": 42.5, "validators": []}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.566322+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.566401+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.566441+01:00"}
+
+--------------------------------------------------------------------------------
+demo_create_measurement_series
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.566543+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.566571+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.566645+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesStart": {"name": "fan_speed", "unit": "rpm", "measurementSeriesId": "0_0", "validators": []}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.566729+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesElement": {"index": 0, "value": 1000, "timestamp": "2023-04-20T03:15:16.566784+01:00", "measurementSeriesId": "0_0"}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.566824+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesElement": {"index": 1, "value": 1200, "timestamp": "2023-04-20T03:15:16.566870+01:00", "measurementSeriesId": "0_0"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.566907+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesElement": {"index": 2, "value": 1500, "timestamp": "2023-04-20T03:15:16.566953+01:00", "measurementSeriesId": "0_0"}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.566989+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesEnd": {"measurementSeriesId": "0_0", "totalCount": 3}}, "sequenceNumber": 7, "timestamp": "2023-04-20T03:15:16.567049+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 8, "timestamp": "2023-04-20T03:15:16.567093+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepStart": {"name": "step1"}}, "sequenceNumber": 9, "timestamp": "2023-04-20T03:15:16.567136+01:00"}
+{"testStepArtifact": {"testStepId": "1", "measurementSeriesStart": {"name": "temp0", "unit": "C", "measurementSeriesId": "1_0", "validators": []}}, "sequenceNumber": 10, "timestamp": "2023-04-20T03:15:16.567219+01:00"}
+{"testStepArtifact": {"testStepId": "1", "measurementSeriesElement": {"index": 0, "value": 42, "timestamp": "2023-04-20T03:15:14.567277+01:00", "measurementSeriesId": "1_0"}}, "sequenceNumber": 11, "timestamp": "2023-04-20T03:15:16.567317+01:00"}
+{"testStepArtifact": {"testStepId": "1", "measurementSeriesElement": {"index": 1, "value": 43, "timestamp": "2023-04-20T03:15:16.567445+01:00", "measurementSeriesId": "1_0"}}, "sequenceNumber": 12, "timestamp": "2023-04-20T03:15:16.567483+01:00"}
+{"testStepArtifact": {"testStepId": "1", "measurementSeriesEnd": {"measurementSeriesId": "1_0", "totalCount": 2}}, "sequenceNumber": 13, "timestamp": "2023-04-20T03:15:16.567550+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 14, "timestamp": "2023-04-20T03:15:16.567596+01:00"}
+{"testStepArtifact": {"testStepId": "2", "testStepStart": {"name": "step2"}}, "sequenceNumber": 15, "timestamp": "2023-04-20T03:15:16.567640+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesStart": {"name": "freq0", "unit": "ghz", "measurementSeriesId": "2_0", "validators": []}}, "sequenceNumber": 16, "timestamp": "2023-04-20T03:15:16.567852+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesStart": {"name": "freq1", "unit": "ghz", "measurementSeriesId": "2_1", "validators": []}}, "sequenceNumber": 17, "timestamp": "2023-04-20T03:15:16.567968+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesElement": {"index": 0, "value": 1.0, "timestamp": "2023-04-20T03:15:16.568021+01:00", "measurementSeriesId": "2_0"}}, "sequenceNumber": 18, "timestamp": "2023-04-20T03:15:16.568053+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesElement": {"index": 0, "value": 2.0, "timestamp": "2023-04-20T03:15:16.568096+01:00", "measurementSeriesId": "2_1"}}, "sequenceNumber": 19, "timestamp": "2023-04-20T03:15:16.568127+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesElement": {"index": 1, "value": 1.2, "timestamp": "2023-04-20T03:15:16.568170+01:00", "measurementSeriesId": "2_0"}}, "sequenceNumber": 20, "timestamp": "2023-04-20T03:15:16.568201+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesEnd": {"measurementSeriesId": "2_0", "totalCount": 2}}, "sequenceNumber": 21, "timestamp": "2023-04-20T03:15:16.568257+01:00"}
+{"testStepArtifact": {"testStepId": "2", "measurementSeriesEnd": {"measurementSeriesId": "2_1", "totalCount": 1}}, "sequenceNumber": 22, "timestamp": "2023-04-20T03:15:16.568296+01:00"}
+{"testStepArtifact": {"testStepId": "2", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 23, "timestamp": "2023-04-20T03:15:16.568340+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 24, "timestamp": "2023-04-20T03:15:16.568381+01:00"}
+
+--------------------------------------------------------------------------------
+demo_create_measurements_with_validators
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.568486+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.568518+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.568600+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurement": {"name": "temp", "value": 40, "validators": [{"name": "gt_30", "type": "GREATER_THAN", "value": 30}]}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.568861+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesStart": {"name": "fan_speed", "unit": "rpm", "measurementSeriesId": "0_0", "validators": [{"type": "LESS_THAN_OR_EQUAL", "value": 3000}]}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.569101+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesElement": {"index": 0, "value": 1000, "timestamp": "2023-04-20T03:15:16.569196+01:00", "measurementSeriesId": "0_0"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.569233+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesEnd": {"measurementSeriesId": "0_0", "totalCount": 1}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.569297+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 7, "timestamp": "2023-04-20T03:15:16.569341+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 8, "timestamp": "2023-04-20T03:15:16.569382+01:00"}
+
+--------------------------------------------------------------------------------
+demo_create_measurements_with_subcomponent
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.569587+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "name": "dut0.server.net", "platformInfos": [{"info": "memory-optimized"}], "softwareInfos": [{"softwareInfoId": "dut0_0", "name": "bmc0", "version": "10", "revision": "11", "softwareType": "FIRMWARE", "computerSystem": "primary_node"}], "hardwareInfos": [{"hardwareInfoId": "dut0_0", "name": "ram0", "version": "1", "revision": "2", "location": "MB/DIMM_A1", "serialNumber": "HMA2022029281901", "partNumber": "P03052-091", "manufacturer": "hynix", "manufacturerPartNumber": "HMA84GR7AFR4N-VK", "odataId": "/redfish/v1/Systems/System.Embedded.1/Memory/DIMMSLOTA1", "computerSystem": "primary_node", "manager": "bmc0"}]}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.569700+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.569828+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurement": {"name": "temp0", "value": 100.5, "unit": "F", "validators": [], "hardwareInfoId": "dut0_0", "subcomponent": {"name": "chip0"}}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.569999+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesStart": {"name": "temp1", "unit": "C", "measurementSeriesId": "0_0", "validators": [], "hardwareInfoId": "dut0_0", "subcomponent": {"type": "UNSPECIFIED", "name": "chip1", "location": "U11", "version": "1", "revision": "1"}}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.570218+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesElement": {"index": 0, "value": 79, "timestamp": "2023-04-20T03:15:16.570297+01:00", "measurementSeriesId": "0_0"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.570334+01:00"}
+{"testStepArtifact": {"testStepId": "0", "measurementSeriesEnd": {"measurementSeriesId": "0_0", "totalCount": 1}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.570395+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 7, "timestamp": "2023-04-20T03:15:16.570439+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 8, "timestamp": "2023-04-20T03:15:16.570479+01:00"}
+
+--------------------------------------------------------------------------------
+demo_no_contexts
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.570576+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "no with", "version": "1.0", "commandLine": "", "parameters": {"param": "test"}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.570606+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.570680+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "DEBUG", "message": "Some interesting message.", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/simple.py", "line": 34}}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.570845+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.570904+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.570943+01:00"}
+
+--------------------------------------------------------------------------------
+demo_context_run_skip
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.571038+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "run_skip", "version": "1.0", "commandLine": "", "parameters": {"param": "test"}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.571091+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "SKIP", "result": "NOT_APPLICABLE"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.571184+01:00"}
+
+--------------------------------------------------------------------------------
+demo_context_step_fail
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.571764+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "step_fail", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.571811+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.571895+01:00"}
+{"testStepArtifact": {"testStepId": "0", "log": {"severity": "INFO", "message": "info log", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/simple.py", "line": 63}}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.571993+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.572052+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepStart": {"name": "step1"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.572098+01:00"}
+{"testStepArtifact": {"testStepId": "1", "testStepEnd": {"status": "ERROR"}}, "sequenceNumber": 6, "timestamp": "2023-04-20T03:15:16.572144+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 7, "timestamp": "2023-04-20T03:15:16.572185+01:00"}
+
+--------------------------------------------------------------------------------
+demo_diagnosis
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.572288+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "run_with_diagnosis", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "platformInfos": [], "softwareInfos": [], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.572316+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepStart": {"name": "step0"}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.572389+01:00"}
+{"testStepArtifact": {"testStepId": "0", "diagnosis": {"verdict": "pass-default", "type": "PASS", "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/simple.py", "line": 89}}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.572515+01:00"}
+{"testStepArtifact": {"testStepId": "0", "testStepEnd": {"status": "COMPLETE"}}, "sequenceNumber": 4, "timestamp": "2023-04-20T03:15:16.572598+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 5, "timestamp": "2023-04-20T03:15:16.572639+01:00"}
+
+--------------------------------------------------------------------------------
+demo_error_while_gathering_duts
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.572736+01:00"}
+{"testRunArtifact": {"error": {"symptom": "no-dut", "message": "could not find any valid DUTs", "softwareInfoIds": [], "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/simple.py", "line": 104}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.572767+01:00"}
+
+--------------------------------------------------------------------------------
+demo_run_error_with_dut
+--------------------------------------------------------------------------------
+{"schemaVersion": {"major": 2, "minor": 0}, "sequenceNumber": 0, "timestamp": "2023-04-20T03:15:16.572924+01:00"}
+{"testRunArtifact": {"testRunStart": {"name": "test", "version": "1.0", "commandLine": "", "parameters": {}, "dutInfo": {"dutInfoId": "dut0", "name": "dut0.server.net", "platformInfos": [], "softwareInfos": [{"softwareInfoId": "dut0_0", "name": "bmc", "version": "2.5", "softwareType": "FIRMWARE"}], "hardwareInfos": []}}}, "sequenceNumber": 1, "timestamp": "2023-04-20T03:15:16.572953+01:00"}
+{"testRunArtifact": {"error": {"symptom": "power-fail", "softwareInfoIds": ["dut0_0"], "sourceLocation": {"file": "/home/user/ocp-diag-python/examples/simple.py", "line": 125}}}, "sequenceNumber": 2, "timestamp": "2023-04-20T03:15:16.573109+01:00"}
+{"testRunArtifact": {"testRunEnd": {"status": "COMPLETE", "result": "PASS"}}, "sequenceNumber": 3, "timestamp": "2023-04-20T03:15:16.573183+01:00"}
+

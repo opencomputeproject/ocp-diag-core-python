@@ -1,5 +1,7 @@
 import json
 import typing as ty
+from contextlib import contextmanager
+from datetime import timedelta, timezone
 
 import pytest
 
@@ -23,18 +25,32 @@ class MockWriter(Writer):
 @pytest.fixture
 def writer() -> MockWriter:
     w = MockWriter()
-    tv.config_output(w)
+    tv.config(writer=w)
     return w
 
 
-def assert_json(line: str, expected: JSON):
-    actual = json.loads(line)
+@contextmanager
+def disable_runtime_checks():
+    from ocptv.output.config import get_config
 
-    # remove timestamps, cant easily compare
-    if isinstance(actual, dict) and "timestamp" in actual:
-        del actual["timestamp"]
+    try:
+        prev = get_config().enable_runtime_checks
+        tv.config(enable_runtime_checks=False)
 
-    if isinstance(expected, dict) and "timestamp" in expected:
-        del expected["timestamp"]
+        yield
+    finally:
+        tv.config(enable_runtime_checks=prev)
 
-    assert actual == expected
+
+@contextmanager
+def offset_timezone(utc_offset_hours: float):
+    from ocptv.output.config import get_config
+
+    try:
+        prev = get_config().timezone
+        tz = timezone(offset=timedelta(hours=utc_offset_hours))
+        tv.config(timezone=tz)
+
+        yield
+    finally:
+        tv.config(timezone=prev)
