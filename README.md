@@ -180,7 +180,7 @@ The [sample output file](https://github.com/opencomputeproject/ocp-diag-python/t
 
 ### Developer notes
 
-If you would like to contribute, please head over to [developer notes](https://github.com/opencomputeproject/ocp-diag-python/developer_notes.md) for instructions regarding setting up a development environment and more on submitting code.
+If you would like to contribute, please head over to [developer notes](https://github.com/opencomputeproject/ocp-diag-python/tree/dev/DEVELOPER_NOTES.md) for instructions regarding setting up a development environment and more on submitting code.
 
 ### Contact
 
