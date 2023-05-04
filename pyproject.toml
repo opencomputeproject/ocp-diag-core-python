@@ -50,7 +50,7 @@ push = false
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
+pythonpath = ["src"]
 addopts = "--cov=ocptv --cov-report term-missing tests/"
 
 [tool.black]

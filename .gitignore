@@ -10,3 +10,4 @@ dist
 coverage.xml
 docs/src/_build
 build
+.eggs

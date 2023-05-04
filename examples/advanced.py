@@ -1,10 +1,5 @@
 import logging
 import sys
-from pathlib import Path
-
-# add the local lib to sys.path for discovery
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 
 import ocptv.output as tv
 from ocptv.output import LogSeverity, StdoutWriter, Writer
