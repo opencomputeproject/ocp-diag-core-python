@@ -1,4 +1,8 @@
 import sys
+from pathlib import Path
+
+# add the local lib to sys.path for discovery
+sys.path.append(str(Path(__file__).resolve().parent.parent / "src"))
 
 from . import DEMOS
 
