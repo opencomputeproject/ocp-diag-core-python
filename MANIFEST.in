@@ -1,0 +1,4 @@
+graft tests
+graft examples
+global-exclude *.py[cod]
+include docs/*.md
