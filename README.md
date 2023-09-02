@@ -78,6 +78,10 @@ The specification does not impose any particular level of usage. To be compliant
 A very simple starter example, which just outputs a diagnosis:
 ```py
 import ocptv.output as tv
+import random
+
+def get_fan_speed():
+    return random.randrange(1500, 1700)
 
 def main():
     run = tv.TestRun(name="simple_diagnosis", version="1.0")
@@ -85,10 +89,13 @@ def main():
     with run.scope(dut=dut):
         step = run.add_step("check_fanspeed")
         with step.scope():
-            if get_fan_speed() > 1600: # assuming external get_fan_speed() impl
-                step.add_diagnosis(DiagnosisType.PASS, verdict="fan_ok")
+            if get_fan_speed() >= 1600:
+                step.add_diagnosis(tv.DiagnosisType.PASS, verdict="fan_ok")
             else:
-                step.add_diagnosis(DiagnosisType.FAIL, verdict="fan_low")
+                step.add_diagnosis(tv.DiagnosisType.FAIL, verdict="fan_low")
+               
+if __name__ == '__main__':
+    main()
 ```
 
 Expected output (slightly reformatted for readability):
