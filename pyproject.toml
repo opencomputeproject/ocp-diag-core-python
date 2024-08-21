@@ -64,3 +64,7 @@ name = "ocptv"
 version = "0.1.6"
 description = "OCP Test & Validation project api"
 authors = ["OCP Test & Validation <ocp-test-validation@OCP-All.groups.io>"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+

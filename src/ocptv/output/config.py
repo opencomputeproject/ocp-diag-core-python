@@ -1,6 +1,7 @@
 """
 This module contains output channel configuration for the OCPTV library.
 """
+
 import threading
 import typing as ty
 from abc import ABC, abstractmethod
