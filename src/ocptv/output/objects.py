@@ -11,6 +11,7 @@ value in ``SPEC_OBJECT`` as the serialized field name. Otherwise, the ``metadata
 says what the serializer should use for field name.
 In general, ``metadata.spec_field`` should only be present for primitive types.
 """
+
 import dataclasses as dc
 import typing as ty
 from enum import Enum

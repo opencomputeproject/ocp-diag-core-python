@@ -1,6 +1,7 @@
 """
 This module covers the raw output semantics of the OCPTV library.
 """
+
 import dataclasses as dc
 import json
 import threading

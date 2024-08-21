@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ocptv"
-version = "0.1.6"
+version = "0.1.7"
 description = "OCP Test & Validation project api"
 readme = "README.md"
 authors = [{ name = "OCP Test & Validation", email = "ocp-test-validation@OCP-All.groups.io" }]
@@ -33,7 +33,7 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pytest", "pytest-cov", "mypy"]
 "Source" = "https://github.com/opencomputeproject/ocp-diag-python"
 
 [tool.bumpver]
-current_version = "0.1.6"
+current_version = "0.1.7"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
@@ -61,6 +61,10 @@ profile = "black"
 
 [tool.poetry]
 name = "ocptv"
-version = "0.1.6"
+version = "0.1.7"
 description = "OCP Test & Validation project api"
 authors = ["OCP Test & Validation <ocp-test-validation@OCP-All.groups.io>"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
