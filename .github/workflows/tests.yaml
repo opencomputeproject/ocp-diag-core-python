@@ -23,7 +23,7 @@ jobs:
           pip install -r requirements.txt
       - name: Lint with black
         run: |
-          black . --check
+          black . --check --diff
       - name: Check typing with mypy
         run: |
           mypy . --check-untyped-defs
