@@ -1,0 +1,18 @@
+# ref: https://docs.codecov.com/docs/codecovyml-reference
+coverage:
+  range: 100
+  round: down
+  precision: 1
+  status:
+    # ref: https://docs.codecov.com/docs/commit-status
+    project:
+      default:
+        # Avoid false negatives
+        threshold: 1%
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "condensed_header, files"
+  require_changes: true
