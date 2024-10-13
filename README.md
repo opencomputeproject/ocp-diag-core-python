@@ -1,5 +1,10 @@
 # ocp-diag-python
 
+[![PyPI - Version](https://img.shields.io/pypi/v/ocptv)](https://pypi.org/project/ocptv/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ocptv)
+[![codecov](https://codecov.io/gh/opencomputeproject/ocp-diag-core-python/graph/badge.svg?token=U3B9QRX0WV)](https://codecov.io/gh/opencomputeproject/ocp-diag-core-python)
+[![GitHub License](https://img.shields.io/github/license/opencomputeproject/ocp-diag-core-python)](https://github.com/opencomputeproject/ocp-diag-core-python/blob/dev/LICENSE)
+
 The **OCP Test & Validation Initiative** is a collaboration between datacenter hyperscalers having the goal of standardizing aspects of the hardware validation/diagnosis space, along with providing necessary tooling to enable both diagnostic developers and executors to leverage these interfaces.
 
 Specifically, the [ocp-diag-python](https://github.com/opencomputeproject/ocp-diag-python) project makes it easy for developers to use the **OCP Test & Validation specification** artifacts by presenting a pure-python api that can be used to output spec compliant JSON messages.
