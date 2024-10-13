@@ -767,11 +767,12 @@ if ty.TYPE_CHECKING:
     # note: these must specify some bounds for the extension content in python, despite
     # the spec saying that it can be anything. This is necessary for the json serializer
     # to actually know how to output the data.
-    ExtensionContentType = ty.Union[  # pragma: no cover
-        ty.Dict[str, "ExtensionContentType"],
-        ty.List["ExtensionContentType"],
+    ExtensionContentTypeInner = ty.Union[  # pragma: no cover
+        ty.Dict[str, "ExtensionContentTypeInner"],
+        ty.List["ExtensionContentTypeInner"],
         ty.Union[float, int, bool, str, None],
     ]
+    ExtensionContentType = ty.Dict[str, ExtensionContentTypeInner]  # pragma: no cover
 else:
     # the runtime checker cannot deal with recursive types, and this is meant to be any
     ExtensionContentType = ty.Any

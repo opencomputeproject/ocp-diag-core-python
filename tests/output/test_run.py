@@ -3,7 +3,14 @@ import typing as ty
 
 import ocptv.output as tv
 from ocptv.formatter import format_timestamp
-from ocptv.output import DiagnosisType, LogSeverity, SoftwareType, TestResult, TestStatus, ValidatorType
+from ocptv.output import (
+    DiagnosisType,
+    LogSeverity,
+    SoftwareType,
+    TestResult,
+    TestStatus,
+    ValidatorType,
+)
 from ocptv.output.emit import JSON
 
 from .checks import IgnoreAssert, LambdaAssert, RangeAssert, assert_json
@@ -679,11 +686,6 @@ def test_step_produces_extensions(writer: MockWriter):
         step = run.add_step("step0")
         with step.scope():
             step.add_extension(
-                name="simple",
-                content="extension_identifier",
-            )
-
-            step.add_extension(
                 name="complex",
                 content={
                     "@type": "DemoExtension",
@@ -692,23 +694,9 @@ def test_step_produces_extensions(writer: MockWriter):
                 },
             )
 
-    assert len(writer.lines) == 7
+    assert len(writer.lines) == 6
     assert_json(
         writer.lines[3],
-        {
-            "testStepArtifact": {
-                "extension": {
-                    "name": "simple",
-                    "content": "extension_identifier",
-                },
-                "testStepId": "0",
-            },
-            "sequenceNumber": 3,
-            "timestamp": IgnoreAssert(),
-        },
-    )
-    assert_json(
-        writer.lines[4],
         {
             "testStepArtifact": {
                 "extension": {
@@ -721,7 +709,7 @@ def test_step_produces_extensions(writer: MockWriter):
                 },
                 "testStepId": "0",
             },
-            "sequenceNumber": 4,
+            "sequenceNumber": 3,
             "timestamp": IgnoreAssert(),
         },
     )
