@@ -14,11 +14,6 @@ def demo_step_extension():
         step = run.add_step("step0")
         with step.scope():
             step.add_extension(
-                name="simple",
-                content="extension_identifier",
-            )
-
-            step.add_extension(
                 name="complex",
                 content={
                     "@type": "DemoExtension",

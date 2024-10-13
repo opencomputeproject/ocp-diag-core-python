@@ -32,7 +32,7 @@ In order to do so:
     ```bash
     $ pytest -v
     ```
-4. *[optiona]* deactivate/exit the env
+4. *[optional]* deactivate/exit the env
     ```bash
     $ deactivate
     ```
@@ -61,6 +61,8 @@ Steps:
     $ black . # will reformat all the source files
     $ mypy ocptv tests examples --check-untyped-defs # check the type annotations
     ```
+    Alternatively, use `scripts/check.sh` to run all the CI checks (aside from spec validation).
+
 4. if the tests above pass and everything is ready, push and make a PR. This can be done either from the Github website or using [gh cli](https://cli.github.com/manual/gh_pr_create).
 5. the PR will now be reviewed. If everything is ok, a maintainer will merge it to the `dev` branch.
 
@@ -81,5 +83,5 @@ Run it just by simply using the `act -j pytest` command in the repository root d
 When necessary, likely due to code/doc changes, regenerate the api reference by running:
 
 ```bash
-$ .scripts/gendoc.sh
+$ scripts/gendoc.sh
 ```
