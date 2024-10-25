@@ -16,7 +16,7 @@ Primitive = ty.Union[float, int, bool, str, None]
 JSON = ty.Union[ty.Dict[str, "JSON"], ty.List["JSON"], Primitive]
 
 
-def _is_optional(field: ty.Type):
+def _is_optional(field: ty.Type) -> bool:
     # type hackery incoming
     # ty.Optional[T] == ty.Union[T, None]
     # since ty.Union[ty.Union[T,U]] = ty.Union[T,U] we can the
@@ -30,7 +30,7 @@ class ArtifactEmitter:
     Uses the low level dataclass models for the spec, but should not be used in user code.
     """
 
-    def __init__(self, writer: Writer):
+    def __init__(self, writer: Writer) -> None:
         self._seq_lock = threading.Lock()
         self._seq = 0
 
@@ -41,7 +41,7 @@ class ArtifactEmitter:
         self._version_emitted = threading.Event()
 
     @staticmethod
-    def _serialize(artifact: ArtifactType):
+    def _serialize(artifact: ArtifactType) -> str:
         def visit(
             value: ty.Union[ArtifactType, ty.Dict, ty.List, Primitive],
             formatter: ty.Optional[ty.Callable[[ty.Any], str]] = None,
@@ -56,7 +56,7 @@ class ArtifactEmitter:
                     val = getattr(value, field.name)
 
                     if val is None:
-                        if not _is_optional(field.type):
+                        if not _is_optional(ty.cast(ty.Type, field.type)):
                             # TODO: fix exception text/type
                             raise RuntimeError("unacceptable none where not optional")
 

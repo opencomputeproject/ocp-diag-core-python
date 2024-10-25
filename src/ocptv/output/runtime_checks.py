@@ -119,8 +119,8 @@ class UnionCheckError(TypeCheckError):
 
 
 def _check_type_any(obj: CheckedValue, hint: ty.Type, trace: ty.List[str]):
-    type_origin = get_origin(hint)
-    type_args = get_args(hint)
+    type_origin = ty.cast(ty.Optional[ty.Type], get_origin(hint))
+    type_args = ty.cast(ty.Tuple[ty.Type, ...], get_args(hint))
 
     if type_origin is list:
         # generic type: typ == ty.List[...]
@@ -186,7 +186,7 @@ def _check_type_any(obj: CheckedValue, hint: ty.Type, trace: ty.List[str]):
     elif dc.is_dataclass(obj):
         for field in dc.fields(obj):
             subtrace = trace + [f"{obj.__class__.__name__}.{field.name}"]
-            _check_type_any(getattr(obj, field.name), field.type, subtrace)
+            _check_type_any(getattr(obj, field.name), ty.cast(ty.Type, field.type), subtrace)
 
     elif not isinstance(obj, hint):
         raise TypeCheckError(obj, expected=hint.__name__, trace=trace)
