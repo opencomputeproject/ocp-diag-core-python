@@ -1,8 +1,10 @@
+import collections.abc as abc
+
 DEMOS = {}
 
 
-def demo(func):
-    def w(banner=True):
+def demo(func) -> abc.Callable[[], None]:
+    def w(banner=True) -> None:
         if banner:
             print("-" * 80)
             print(func.__name__)
